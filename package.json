@@ -1,0 +1,21 @@
+{
+  "name": "chirec-drama-collective",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "compress:statue": "gltf-transform optimize assets/models/statue.source.glb assets/models/statue.glb --compress meshopt --texture-compress webp --texture-size 2048 --simplify-ratio 0.5 --simplify-error 0.0004"
+  },
+  "dependencies": {
+    "gsap": "3.13.0",
+    "lottie-web": "5.12.2",
+    "three": "0.170.0"
+  },
+  "devDependencies": {
+    "@gltf-transform/cli": "^4.1.1",
+    "vite": "^6.0.0"
+  }
+}

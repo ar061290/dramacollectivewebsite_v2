@@ -1,0 +1,66 @@
+/* The Drama Collective design system: tokens, copied verbatim (September 2026 reference). */
+:root {
+  --plum-900: #2a0d1c; --plum-800: #40142a; --plum-700: #5a1f3c; --plum-600: #6d2751; --plum-500: #863469;
+  --plum-400: #a15187; --plum-300: #c185ac; --plum-200: #ddb8cf; --plum-100: #f3e7e9; --plum-50: #faf3f4;
+  --gold-700: #a98f38; --gold-600: #cbae57; --gold-500: #ebd88c; --gold-300: #f3e7b8; --gold-100: #faf4de;
+  --slate-800: #2c3334; --slate-700: #424c4d; --slate-500: #6b7677; --slate-300: #a7b0b0; --slate-200: #ccd2d2; --slate-100: #e8ebeb;
+  --white: #ffffff; --black: #150408;
+  --danger: #8c2f2f; --success: #3f6b4a; --warning: #a98f38; --info: #3c5a70;
+  --text-strong: var(--plum-800); --text-body: var(--slate-700); --text-muted: var(--slate-500);
+  --text-inverse: var(--plum-100); --text-accent: var(--plum-500); --text-on-dark-muted: var(--plum-300);
+  --surface-page: var(--plum-100); --surface-card: var(--white); --surface-raised: var(--plum-50);
+  --surface-ink: var(--plum-800); --surface-ink-deep: var(--plum-900); --surface-accent: var(--plum-500);
+  --surface-gold: var(--gold-500); --surface-slate: var(--slate-700);
+  --border-soft: var(--plum-200); --border-strong: var(--plum-800); --border-gold: var(--gold-500);
+  --border-hairline: rgba(64,20,42,.14);
+  --focus-ring: var(--gold-500); --link: var(--plum-500); --link-hover: var(--plum-800);
+}
+:root {
+  --font-display: "Raung", Georgia, "Times New Roman", serif;
+  --font-body: "Open Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-ui: "Lato", "Helvetica Neue", Arial, sans-serif;
+  --font-condensed: "Open Sans Condensed", "Open Sans", Arial, sans-serif;
+  --size-display-xl: clamp(48px, 7vw, 104px); --size-display-l: clamp(38px, 5vw, 72px); --size-display-m: clamp(30px, 3.4vw, 48px);
+  --size-title: 32px; --size-heading: 24px; --size-subheading: 19px;
+  --size-body-l: 18px; --size-body: 16px; --size-body-s: 14px; --size-caption: 13px; --size-micro: 11px;
+  --lh-display: 1.02; --lh-title: 1.15; --lh-body: 1.62; --lh-tight: 1.3;
+  --ls-display: -0.01em; --ls-title: 0; --ls-body: 0; --ls-eyebrow: 0.22em; --ls-button: 0.06em;
+  --weight-light: 300; --weight-regular: 400; --weight-medium: 500; --weight-semibold: 600; --weight-bold: 700; --weight-black: 900;
+}
+:root {
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 24px; --space-6: 32px;
+  --space-7: 48px; --space-8: 64px; --space-9: 96px; --space-10: 128px;
+  --gutter: var(--space-5); --section-y: var(--space-9); --container: 1140px; --container-narrow: 720px;
+  --radius-none: 0; --radius-xs: 2px; --radius-sm: 4px; --radius-md: 8px; --radius-lg: 14px; --radius-pill: 999px;
+  --border-width: 1px; --border-width-thick: 2px; --rule-thick: 3px;
+}
+:root {
+  --shadow-none: none; --shadow-sm: 0 1px 2px rgba(42,13,28,.10); --shadow-md: 0 4px 14px rgba(42,13,28,.12);
+  --shadow-lg: 0 18px 44px rgba(42,13,28,.18); --shadow-stage: 0 -24px 60px rgba(42,13,28,.35) inset;
+  --shadow-inset-hairline: inset 0 0 0 1px rgba(64,20,42,.10); --glow-gold: 0 0 0 3px rgba(235,216,140,.55);
+  --scrim-bottom: linear-gradient(to top, rgba(42,13,28,.88) 0%, rgba(42,13,28,.55) 38%, rgba(42,13,28,0) 100%);
+  --scrim-spotlight: radial-gradient(ellipse 70% 60% at 50% 0%, rgba(235,216,140,.16) 0%, rgba(235,216,140,0) 70%);
+}
+:root {
+  --ease-curtain: cubic-bezier(.22,.61,.36,1); --ease-out: cubic-bezier(.16,1,.3,1); --ease-in-out: cubic-bezier(.65,0,.35,1);
+  --dur-fast: 120ms; --dur-base: 220ms; --dur-slow: 420ms; --dur-curtain: 700ms;
+  --transition-ui: all var(--dur-base) var(--ease-curtain);
+}
+
+/* ------------------------------------------------------------------------------------------
+   Extensions for the dark stage site. Each one is built from an existing token, in the
+   system's own construction; listed in README.md under "Design system extensions".
+   ------------------------------------------------------------------------------------------ */
+:root {
+  /* hairline for ink surfaces: --border-hairline's 14% alpha, taken from plum-100 instead of plum-800 */
+  --border-on-dark: rgba(243,231,233,.14);
+  /* the top bar height from the TopBar component spec (56px) */
+  --topbar-h: 56px;
+  /* side margin of the stage layout: space-6 on small screens, space-8 from tablet up */
+  --stage-gutter: var(--space-6);
+  /* layer order for the fixed stage, content and chrome */
+  --z-stars: 0; --z-stage: 1; --z-content: 2; --z-footer: 3; --z-topbar: 10; --z-cursor: 20; --z-loader: 30;
+}
+@media (min-width: 768px) {
+  :root { --stage-gutter: var(--space-8); }
+}

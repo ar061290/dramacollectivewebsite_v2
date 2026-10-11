@@ -1,0 +1,8 @@
+/* Font binaries shipped with the design system. Raung ships in one weight only. */
+@font-face { font-family: "Raung"; src: url("../../assets/fonts/Raung-400.otf") format("opentype"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Lato"; src: url("../../assets/fonts/Lato-400.ttf") format("truetype"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Lato"; src: url("../../assets/fonts/Lato-700.ttf") format("truetype"); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: "Lato"; src: url("../../assets/fonts/Lato-900.ttf") format("truetype"); font-weight: 900; font-style: normal; font-display: swap; }
+@font-face { font-family: "Open Sans"; src: url("../../assets/fonts/OpenSans-400.ttf") format("truetype"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Open Sans"; src: url("../../assets/fonts/OpenSans-400i.ttf") format("truetype"); font-weight: 400; font-style: italic; font-display: swap; }
+@font-face { font-family: "Open Sans"; src: url("../../assets/fonts/OpenSans-600.ttf") format("truetype"); font-weight: 600; font-style: normal; font-display: swap; }

@@ -1,0 +1,233 @@
+/* Page structure: a fixed stage (stars + WebGL) under scrolling scenes, a solid curtain-call footer. */
+
+/* ---- Fixed stage ---- */
+.stage { position: fixed; inset: 0; z-index: var(--z-stage); pointer-events: none; }
+.stage__stars { position: absolute; inset: 0; width: 100%; height: 100%; z-index: var(--z-stars); }
+.stage__gl { position: absolute; inset: 0; }
+.stage__gl canvas { display: block; width: 100%; height: 100%; }
+/* the still is a transparent frame of the hero composition, so it fills the stage like the canvas
+   and the star field shows through around the statue */
+.stage__fallback {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+.stage__fallback[hidden] { display: none; }
+
+/* ---- Loader ---- */
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-loader);
+  display: none;
+  place-items: center;
+  background: var(--surface-ink-deep);
+}
+.has-js .loader { display: grid; }
+.loader.is-done { display: none; }
+.loader__inner { display: grid; justify-items: center; gap: var(--space-4); }
+.loader__light { width: 160px; height: 160px; }
+.loader__status { font-variant-numeric: tabular-nums; }
+
+/* ---- Custom cursor (desktop, fine pointers only) ---- */
+.cursor {
+  position: fixed;
+  left: 0; top: 0;
+  z-index: var(--z-cursor);
+  width: 18px; height: 18px;
+  margin: -9px 0 0 -9px;
+  pointer-events: none;
+  color: var(--gold-500);
+  opacity: 0;
+  transition: opacity var(--dur-base) var(--ease-curtain);
+}
+.cursor svg { width: 100%; height: 100%; display: block; transition: transform var(--dur-base) var(--ease-curtain); }
+.has-cursor .cursor.is-visible { opacity: 1; }
+.has-cursor .cursor.is-over-link svg { transform: rotate(45deg); }
+.has-cursor, .has-cursor a, .has-cursor button { cursor: none; }
+@media (hover: none), (pointer: coarse) { .cursor { display: none; } }
+
+/* ---- Content layer ---- */
+main { position: relative; z-index: var(--z-content); }
+
+/* ---- Intro: the hero copy waits in the dark until the curtain goes up ---- */
+.is-intro [data-intro] { visibility: hidden; }
+
+/* ---- Hero ---- */
+.hero { position: relative; height: 100vh; height: 100svh; min-height: 560px; }
+.hero__content {
+  position: absolute;
+  left: var(--stage-gutter);
+  bottom: clamp(40px, 9vh, 96px);
+  max-width: min(30rem, 42vw);
+}
+.hero__content .eyebrow { margin-bottom: var(--space-3); }
+.hero__title {
+  font-size: var(--size-display-l);
+  line-height: var(--lh-display);
+  letter-spacing: var(--ls-display);
+}
+.hero__content .rule { margin: var(--space-4) 0; }
+.hero__tagline { font-size: var(--size-body-l); color: var(--plum-100); margin: 0; }
+.hero__cue {
+  position: absolute;
+  left: 50%;
+  bottom: var(--space-5);
+  width: 24px; height: 64px;
+  margin-left: -12px;
+}
+
+/* ---- Scenes ---- */
+.scene {
+  position: relative;
+  min-height: 100vh;
+  padding: calc(var(--section-y) + var(--topbar-h)) var(--stage-gutter) var(--section-y);
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gutter);
+  align-content: center;
+}
+.scene__content { grid-column: 1 / span 5; }
+.scene--text-right .scene__content { grid-column: 8 / span 5; }
+.scene__content > * + * { margin-top: var(--space-5); }
+.scene__content > .section-heading + * { margin-top: 0; }
+
+.scene h3 { font-family: var(--font-ui); font-weight: var(--weight-bold); font-size: var(--size-subheading); color: var(--plum-100); line-height: var(--lh-tight); }
+
+/* Act two: the programme */
+.production { display: grid; gap: var(--space-3); }
+.production h3 { font-family: var(--font-display); font-weight: 400; font-size: var(--size-heading); line-height: var(--lh-title); }
+.production__meta { display: grid; gap: var(--space-2); margin: 0; }
+.production__meta div { display: grid; grid-template-columns: 6.5rem 1fr; gap: var(--space-3); }
+.production__meta dt { font-family: var(--font-ui); font-size: var(--size-micro); font-weight: var(--weight-bold); letter-spacing: var(--ls-eyebrow); text-transform: uppercase; color: var(--plum-300); padding-top: 4px; }
+.production__meta dd { margin: 0; color: var(--plum-100); }
+.programme { list-style: none; display: grid; gap: var(--space-5); }
+.programme li { display: grid; gap: var(--space-2); }
+.programme p { margin: 0; }
+.note-contrast { font-family: var(--font-display); font-size: var(--size-heading); line-height: 1.35; color: var(--plum-100); max-width: 22em; }
+
+/* Act three: figures */
+.stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-6) var(--space-5); margin: 0; }
+.stats .stat dd { margin: 0; }
+.verbs {
+  font-family: var(--font-ui);
+  font-weight: var(--weight-bold);
+  font-size: var(--size-micro);
+  letter-spacing: var(--ls-eyebrow);
+  text-transform: uppercase;
+  color: var(--gold-500);
+}
+
+/* Act four: leadership */
+.people { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+.person h3 { font-family: var(--font-display); font-weight: 400; font-size: var(--size-heading); line-height: var(--lh-title); margin: var(--space-2) 0 var(--space-3); }
+.person a { font-size: var(--size-body-s); overflow-wrap: anywhere; }
+
+/* Act five: sponsorship */
+.tiers { list-style: none; display: grid; gap: var(--space-4); }
+.tier { display: grid; gap: var(--space-3); }
+.tier__head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; }
+.tier__name { font-family: var(--font-ui); font-weight: var(--weight-bold); font-size: var(--size-body-s); letter-spacing: var(--ls-eyebrow); text-transform: uppercase; color: var(--plum-100); margin: 0; }
+.tier__price { font-family: var(--font-ui); font-weight: var(--weight-black); font-size: 32px; line-height: 1; color: var(--gold-500); margin: 0; font-variant-numeric: tabular-nums; }
+.tier__kind { font-family: var(--font-display); font-size: var(--size-heading); line-height: var(--lh-title); color: var(--plum-100); margin: 0; }
+.tier ul { list-style: none; display: grid; gap: var(--space-2); }
+.tier li { padding-left: var(--space-5); position: relative; font-size: var(--size-body-s); }
+.tier li::before { content: ""; position: absolute; left: 0; top: .72em; width: 12px; height: 1px; background: var(--gold-500); }
+.tier--gold { background: var(--plum-700); border-color: var(--border-gold); }
+.tier--gold::before { height: 5px; }
+.funds { list-style: none; display: grid; gap: var(--space-2); }
+.funds li { padding-left: var(--space-5); position: relative; }
+.funds li::before { content: ""; position: absolute; left: 0; top: .8em; width: 12px; height: 1px; background: var(--gold-500); }
+.tags { list-style: none; display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.cta { display: inline-grid; justify-items: start; gap: var(--space-2); }
+.cta__flourish { width: 160px; height: 12px; pointer-events: none; }
+.fine { font-size: var(--size-caption); color: var(--plum-300); }
+
+/* ---- Footer: the curtain call ---- */
+.curtain {
+  position: relative;
+  z-index: var(--z-footer);
+  background: var(--surface-ink-deep);
+  border-top: var(--rule-thick) solid var(--gold-500);
+  padding: var(--section-y) var(--stage-gutter) var(--space-6);
+  overflow: hidden;
+}
+/* The mark, oversized, cropped, at 10%: the system's only ornament */
+.curtain__mark {
+  position: absolute;
+  right: -8vw;
+  bottom: -14vw;
+  width: min(62vw, 720px);
+  opacity: .1;
+  pointer-events: none;
+}
+.curtain__grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gutter);
+  row-gap: var(--space-7);
+  max-width: var(--container);
+}
+.curtain__intro { grid-column: 1 / span 6; }
+.curtain__title { font-size: var(--size-display-m); margin-top: var(--space-3); }
+.curtain__contacts { grid-column: 1 / span 7; list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-5); }
+.curtain__contacts .name { font-family: var(--font-display); font-size: var(--size-heading); color: var(--plum-100); display: block; margin-top: var(--space-2); }
+.curtain__contacts a { font-size: var(--size-body-s); overflow-wrap: anywhere; }
+.curtain__event { grid-column: 8 / span 5; margin: 0; display: grid; gap: var(--space-3); align-content: start; }
+.curtain__event dt { font-family: var(--font-ui); font-size: var(--size-micro); font-weight: var(--weight-bold); letter-spacing: var(--ls-eyebrow); text-transform: uppercase; color: var(--plum-300); }
+.curtain__event dd { margin: 0 0 var(--space-2); color: var(--plum-100); }
+.curtain__base {
+  position: relative;
+  margin-top: var(--space-8);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--border-on-dark);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+  max-width: var(--container);
+}
+.legal { font-family: var(--font-ui); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--plum-300); margin: 0; }
+/* Chirec endorsement: right-aligned, smaller than the Collective's mark, with its own line */
+.endorsement { display: flex; align-items: center; gap: var(--space-4); color: var(--plum-200); text-decoration: none; }
+.endorsement:hover { color: var(--plum-100); text-decoration: none; }
+.endorsement__logo { background: var(--white); padding: 6px 10px; width: 132px; height: auto; }
+.endorsement span { font-size: var(--size-caption); line-height: 1.4; max-width: 15em; }
+
+/* ---- Tablet ---- */
+@media (max-width: 1100px) {
+  .scene__content { grid-column: 1 / span 6; }
+  .scene--text-right .scene__content { grid-column: 7 / span 6; }
+}
+
+/* ---- Mobile: statue centred above, single column of text below ---- */
+@media (max-width: 767px) {
+  .hero__content { left: var(--stage-gutter); right: var(--stage-gutter); max-width: none; bottom: calc(var(--space-8) + 24px); }
+  .hero__cue { bottom: var(--space-3); }
+  .scene {
+    display: block;
+    min-height: 0;
+    padding: 58vh 0 0;
+  }
+  .scene__content,
+  .scene--text-right .scene__content {
+    padding: var(--space-8) var(--stage-gutter) var(--space-8);
+    background: linear-gradient(to bottom, rgba(42,13,28,0) 0, var(--plum-900) var(--space-8));
+  }
+  .stats, .people, .curtain__contacts { grid-template-columns: minmax(0, 1fr); }
+  .curtain__intro, .curtain__contacts, .curtain__event { grid-column: 1 / -1; }
+  .curtain__mark { width: 120vw; right: -30vw; bottom: -40vw; }
+}
+
+/* ---- Reduced motion: transitions collapse to near-instant; JS skips the intro and motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}

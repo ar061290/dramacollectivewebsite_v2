@@ -1,0 +1,82 @@
+/* Base styles from the design system, set in its inverted (stage) register:
+   plum-900 ground, plum-100 headings, plum-200 running text, gold as ink. */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  background: var(--surface-ink-deep);
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--size-body);
+  line-height: var(--lh-body);
+  color: var(--plum-200);
+  background: var(--surface-ink-deep);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  /* vertical page scroll stays native; horizontal drags are free for drawing constellations */
+  touch-action: pan-y pinch-zoom;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: var(--weight-regular);
+  color: var(--text-inverse);
+  line-height: var(--lh-title);
+  letter-spacing: var(--ls-title);
+  margin: 0;
+}
+h4, h5, h6 {
+  font-family: var(--font-ui);
+  font-weight: var(--weight-bold);
+  color: var(--text-inverse);
+  line-height: var(--lh-tight);
+  margin: 0;
+}
+p { margin: 0 0 var(--space-4); max-width: 34em; }
+ul, ol { margin: 0; padding: 0; }
+
+a {
+  color: var(--gold-500);
+  text-decoration: underline 1px;
+  text-underline-offset: 3px;
+  transition: color var(--dur-fast) var(--ease-curtain);
+}
+a:hover { color: var(--gold-300); text-decoration-thickness: 2px; }
+
+:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+::selection { background: var(--gold-500); color: var(--plum-900); }
+
+:where(h1, h2, h3, h4):not([data-reveal]) { text-wrap: balance; }
+:where(p, li, blockquote, figcaption):not([data-reveal]) { text-wrap: pretty; }
+
+img { max-width: 100%; display: block; }
+
+.sr-only {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0);
+  white-space: nowrap; border: 0;
+}
+
+.skip-link {
+  position: fixed;
+  left: var(--space-4);
+  top: var(--space-4);
+  z-index: calc(var(--z-loader) + 1);
+  padding: var(--space-3) var(--space-4);
+  background: var(--gold-500);
+  color: var(--plum-900);
+  font-family: var(--font-ui);
+  font-weight: var(--weight-bold);
+  font-size: var(--size-body-s);
+  letter-spacing: var(--ls-button);
+  text-transform: uppercase;
+  text-decoration: none;
+  transform: translateY(-200%);
+  transition: transform var(--dur-base) var(--ease-curtain);
+}
+.skip-link:focus { transform: translateY(0); }

@@ -1,0 +1,244 @@
+/* Design system primitives (Button, Tag, Eyebrow, Rule, Card, SectionHeading, Stat, Quote, TopBar,
+   Footer), in their on-dark variants. Sharp corners, gold rule, plum-tinted shadows. */
+
+/* ---- Eyebrow ---- */
+.eyebrow {
+  display: block;
+  font-family: var(--font-ui);
+  font-weight: var(--weight-bold);
+  font-size: var(--size-micro);
+  letter-spacing: var(--ls-eyebrow);
+  text-transform: uppercase;
+  color: var(--gold-500);
+  margin: 0;
+}
+
+/* ---- Rule: the signature 3px gold line under a Raung headline ---- */
+.rule {
+  display: block;
+  width: 64px;
+  height: var(--rule-thick);
+  background: var(--gold-500);
+  border: 0;
+  margin: var(--space-4) 0 var(--space-5);
+  transform-origin: left center;
+}
+
+/* ---- SectionHeading ---- */
+.section-heading { display: flex; flex-direction: column; gap: var(--space-3); align-items: flex-start; margin-bottom: var(--space-5); }
+.section-heading h2 {
+  font-size: var(--size-display-m);
+  line-height: var(--lh-title);
+  color: var(--text-inverse);
+}
+.section-heading .rule { margin: var(--space-1) 0 0; }
+.lead { font-size: var(--size-body-l); color: var(--plum-100); }
+
+/* ---- Button ---- */
+.btn {
+  font-family: var(--font-ui);
+  font-weight: var(--weight-bold);
+  text-transform: uppercase;
+  letter-spacing: var(--ls-button);
+  border: var(--border-width) solid transparent;
+  border-radius: var(--radius-none);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  transition: var(--transition-ui);
+  text-decoration: none;
+  line-height: 1;
+  font-size: 14px;
+  padding: 12px 22px;
+  min-height: 44px;
+}
+.btn--sm { font-size: 12px; padding: 8px 14px; min-height: 36px; }
+.btn--lg { font-size: 15px; padding: 16px 30px; min-height: 52px; }
+/* Inverse (gold on plum): the primary action on dark grounds */
+.btn--inverse { background: var(--gold-500); color: var(--plum-900); box-shadow: var(--shadow-sm); }
+.btn--inverse:hover { background: var(--gold-300); color: var(--plum-900); text-decoration: none; }
+.btn--inverse:active { background: var(--gold-600); box-shadow: var(--shadow-none); }
+/* Secondary on dark: outline in plum-100; hover fills ink and thickens to gold */
+.btn--secondary { background: transparent; color: var(--plum-100); border-color: var(--plum-100); }
+.btn--secondary:hover { background: var(--plum-800); color: var(--plum-100); border-color: var(--gold-500); box-shadow: inset 0 0 0 1px var(--gold-500); }
+.btn--secondary:active { background: var(--plum-700); }
+/* Ghost: hover underlines */
+.btn--ghost { background: transparent; color: var(--gold-500); padding-inline: 6px; }
+.btn--ghost:hover { color: var(--gold-300); text-decoration: underline 1px; text-underline-offset: 4px; }
+.btn:disabled, .btn[aria-disabled="true"] { opacity: .45; cursor: not-allowed; box-shadow: none; }
+
+/* ---- Tag ---- */
+.tag {
+  font-family: var(--font-ui);
+  font-weight: var(--weight-bold);
+  font-size: var(--size-micro);
+  letter-spacing: var(--ls-eyebrow);
+  text-transform: uppercase;
+  padding: 5px 10px;
+  display: inline-block;
+  line-height: 1.1;
+  border-radius: var(--radius-none);
+  background: rgba(235, 216, 140, .16);
+  color: var(--gold-500);
+}
+.tag--outline { background: transparent; color: var(--plum-100); box-shadow: inset 0 0 0 1px var(--border-on-dark); }
+
+/* ---- Card (ink) with the gold rule that grows on hover ---- */
+.card {
+  position: relative;
+  background: var(--surface-ink);
+  color: var(--plum-200);
+  border: var(--border-width) solid var(--border-on-dark);
+  border-radius: var(--radius-none);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-sm);
+  /* only the shadow transitions: opacity and transform belong to the GSAP reveal */
+  transition: box-shadow var(--dur-base) var(--ease-curtain);
+}
+.card::before {
+  content: "";
+  position: absolute;
+  left: -1px; right: -1px; top: -1px;
+  height: var(--rule-thick);
+  background: var(--gold-500);
+  transform-origin: top;
+  transition: transform var(--dur-base) var(--ease-curtain);
+}
+@media (hover: hover) and (pointer: fine) {
+  .card:hover { box-shadow: var(--shadow-md); }
+  .card:hover::before { transform: scaleY(1.6667); } /* 3px -> 5px */
+}
+.card p:last-child { margin-bottom: 0; }
+
+/* ---- Stat ---- */
+/* caption comes first in the markup (dt before dd); the figure is shown on top */
+.stat { display: flex; flex-direction: column-reverse; justify-content: flex-end; gap: 6px; }
+.stat__figure {
+  font-family: var(--font-ui);
+  font-weight: var(--weight-black);
+  font-size: 44px;
+  line-height: 1;
+  color: var(--gold-500);
+  font-variant-numeric: tabular-nums;
+  margin: 0;
+}
+.stat__caption {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--ls-eyebrow);
+  text-transform: uppercase;
+  color: var(--plum-300);
+  margin: 0;
+}
+
+/* ---- Quote ---- */
+.quote { margin: 0; border-left: var(--rule-thick) solid var(--gold-500); padding-left: var(--space-5); }
+.quote p {
+  font-family: var(--font-display);
+  font-size: var(--size-heading);
+  line-height: 1.35;
+  color: var(--plum-100);
+  margin: 0;
+  max-width: 24em;
+}
+.quote footer {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--ls-eyebrow);
+  text-transform: uppercase;
+  color: var(--gold-500);
+  margin-top: var(--space-3);
+}
+
+/* ---- TopBar ---- */
+.topbar {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: var(--z-topbar);
+  height: var(--topbar-h);
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  padding: 0 var(--stage-gutter);
+  transition: transform var(--dur-slow) var(--ease-curtain), background-color var(--dur-base) var(--ease-curtain);
+}
+/* Blur is used in exactly one place: the top bar over scrolled content (plum 800 at 88%, 10px). */
+.topbar.is-scrolled { background: rgba(64, 20, 42, .88); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.topbar.is-hidden { transform: translateY(-100%); }
+.topbar__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--plum-100);
+  text-decoration: none;
+  margin-right: auto;
+  min-height: 44px;
+}
+.topbar__brand:hover { color: var(--plum-100); text-decoration: none; }
+.topbar__mark { width: 32px; height: 32px; flex: none; }
+.topbar__mark img, .topbar__mark svg { width: 100%; height: 100%; }
+.topbar__word { font-family: var(--font-display); font-size: 17px; line-height: 1; }
+.topbar__links { display: flex; gap: var(--space-5); list-style: none; }
+.topbar__links a {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: var(--weight-bold);
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--plum-200);
+  text-decoration: none;
+  border-bottom: var(--rule-thick) solid transparent;
+  padding: 14px 0 4px;
+  display: inline-block;
+}
+.topbar__links a:hover, .topbar__links a[aria-current="true"] { color: var(--gold-500); border-bottom-color: var(--gold-500); }
+.topbar__menu {
+  display: none;
+  background: none;
+  border: 0;
+  color: var(--plum-100);
+  font-family: var(--font-ui);
+  font-weight: var(--weight-bold);
+  font-size: 12px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  min-height: 44px;
+  padding: 0 var(--space-2);
+  cursor: pointer;
+}
+.topbar__sheet { display: none; }
+
+@media (max-width: 860px) {
+  .topbar__links { display: none; }
+  .topbar__menu { display: inline-flex; align-items: center; }
+  .topbar__word { font-size: 15px; }
+  .topbar__sheet {
+    position: fixed;
+    top: var(--topbar-h);
+    left: 0; right: 0;
+    background: var(--plum-800);
+    border-bottom: var(--rule-thick) solid var(--gold-500);
+    padding: var(--space-4) var(--stage-gutter) var(--space-5);
+    z-index: var(--z-topbar);
+  }
+  .topbar__sheet.is-open { display: block; }
+  .topbar__sheet ul { list-style: none; display: grid; gap: var(--space-1); }
+  .topbar__sheet a {
+    display: block;
+    padding: var(--space-3) 0;
+    font-family: var(--font-ui);
+    font-size: 13px;
+    font-weight: var(--weight-bold);
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--plum-100);
+    text-decoration: none;
+  }
+}
+@media (max-width: 420px) {
+  .topbar__word { display: none; }
+}

@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en-IN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>The Drama Collective · CHIREC International School</title>
+  <meta name="description" content="The CHIREC Drama Collective is a group of young performers from CHIREC International School. Where young talent finds its voice.">
+  <meta name="theme-color" content="#2a0d1c">
+  <link rel="icon" href="./assets/brand/mark-gold.png">
+  <link rel="preload" href="./assets/fonts/Raung-400.otf" as="font" type="font/otf" crossorigin>
+  <link rel="stylesheet" href="./src/styles/main.css">
+  <!-- Bare-module map for running without a build step (any static server). Vite resolves the same
+       specifiers from node_modules and ignores this map. Keep the versions in step with package.json. -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/",
+      "gsap": "https://cdn.jsdelivr.net/npm/gsap@3.13.0/index.js",
+      "gsap/": "https://cdn.jsdelivr.net/npm/gsap@3.13.0/",
+      "lottie-web/build/player/lottie_light.js": "https://cdn.jsdelivr.net/npm/lottie-web@5.12.2/build/player/lottie_light.js/+esm"
+    }
+  }
+  </script>
+  <script>
+    document.documentElement.classList.add('has-js');
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('is-intro');
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#about">Skip to content</a>
+
+  <div class="loader" aria-hidden="true">
+    <div class="loader__inner">
+      <div class="loader__light" data-lottie="loader"></div>
+      <p class="eyebrow loader__status" data-loader-status>Lighting the stage</p>
+    </div>
+  </div>
+
+  <div class="stage" aria-hidden="true">
+    <canvas class="stage__stars"></canvas>
+    <div class="stage__gl"></div>
+    <img class="stage__fallback" src="./assets/fallback/hero.png" alt="" hidden>
+  </div>
+
+  <div class="cursor" aria-hidden="true">
+    <svg viewBox="-10 -10 20 20"><path d="M0-10C1-2 2-1 10 0 2 1 1 2 0 10-1 2-2 1-10 0-2-1-1-2 0-10Z" fill="currentColor"/></svg>
+  </div>
+
+  <header class="topbar" data-topbar>
+    <a class="topbar__brand" href="#top" aria-label="The Drama Collective, back to top">
+      <span class="topbar__mark" data-lottie="mask-mark"><img src="./assets/brand/mark-gold.png" alt=""></span>
+      <span class="topbar__word">The Drama Collective</span>
+    </a>
+    <nav aria-label="Main">
+      <ul class="topbar__links">
+        <li><a href="#about">About</a></li>
+        <li><a href="#productions">Productions</a></li>
+        <li><a href="#support">Support</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+    <button class="topbar__menu" type="button" aria-expanded="false" aria-controls="menu-sheet" data-menu-toggle>Menu</button>
+    <a class="btn btn--inverse btn--sm" href="#support">Sponsor us</a>
+    <div class="topbar__sheet" id="menu-sheet" data-menu-sheet>
+      <ul>
+        <li><a href="#about">About</a></li>
+        <li><a href="#productions">Productions</a></li>
+        <li><a href="#support">Support</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top" aria-labelledby="hero-title">
+      <p class="sr-only">On stage: a white marble statue of a figure in flowing robes, seen from behind, raising a tragedy mask toward the sky, framed by a ring of carved stone that looks closed only from where you stand.</p>
+      <div class="hero__content" data-mask>
+        <p class="eyebrow" data-intro="eyebrow">CHIREC International School</p>
+        <h1 class="hero__title" id="hero-title" data-intro="title">The Drama Collective</h1>
+        <span class="rule" data-intro="rule" aria-hidden="true"></span>
+        <p class="hero__tagline" data-intro="tagline">Where young talent finds its voice.</p>
+      </div>
+      <div class="hero__cue" data-lottie="scroll-cue" data-intro="cue" aria-hidden="true"></div>
+    </section>
+
+    <section class="scene" id="about" aria-labelledby="about-title"
+      data-scene data-frame="0.24" data-light="0.1" data-key="0.92">
+      <div class="scene__content">
+        <header class="section-heading" data-mask>
+          <p class="eyebrow">Act one · Who we are</p>
+          <h2 id="about-title" data-reveal>Theatre is more than performance.</h2>
+          <span class="rule" aria-hidden="true"></span>
+        </header>
+        <div data-mask>
+          <p class="lead" data-reveal>It is confidence. It is imagination. It is self-discovery.</p>
+          <p data-reveal>The CHIREC Drama Collective is a group of young performers from the #1 international school in Telangana who come together to learn, experiment, create and put on a show.</p>
+          <p data-reveal>These students are not only putting on a show for you, they are building skills that will stay with them long after the curtain closes, including communication, collaboration, discipline, empathy, leadership, and creative problem solving.</p>
+        </div>
+        <div data-mask>
+          <h3 data-reveal>What we are building</h3>
+          <p data-reveal>A sustainable platform where young performers can learn, collaborate and experiment through productions, workshops and future theatre initiatives. With the support of partners like you, we hope to make theatre more accessible to young people and encourage a new generation to discover, enjoy, and pursue the performing arts.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="scene scene--text-right" id="productions" aria-labelledby="productions-title"
+      data-scene data-frame="-0.24" data-light="1" data-key="0.86">
+      <div class="scene__content">
+        <header class="section-heading" data-mask>
+          <p class="eyebrow">Act two · Productions</p>
+          <h2 id="productions-title" data-reveal>Written, directed, designed, performed and managed by students.</h2>
+          <span class="rule" aria-hidden="true"></span>
+        </header>
+        <article class="card production" data-mask data-stagger>
+          <span class="tag">October 2026</span>
+          <h3>The annual full-scale production</h3>
+          <p>Once a year, we put up a full-scale play. It is one of our outputs, not the culmination of everything we do.</p>
+          <dl class="production__meta">
+            <div><dt>Venue</dt><dd>CHIREC International School – ISRP Campus</dd></div>
+            <div><dt>Dates</dt><dd>Between 22 and 29 October 2026</dd></div>
+          </dl>
+        </article>
+        <ol class="programme" data-mask data-stagger>
+          <li>
+            <h3>Bi-weekly workshops</h3>
+            <p>Led by experts and senior students: practical skills (improvisation, method acting, miming, staging) and some theory (theatre history, acting techniques). The goal is for every member to actually learn something, not just participate.</p>
+          </li>
+          <li>
+            <h3>Drama publication</h3>
+            <p>Our own drama-specific publication: articles on theatre history, reflections from members, role descriptions, interviews, updates on the collective, and original written or creative work by students.</p>
+          </li>
+          <li>
+            <h3>Community outreach</h3>
+            <p>Plans with student-led initiatives including Chirec Radio, and Project SignVerse, an initiative by a Chirec student focused on inclusive communication with the deaf and hard-of-hearing community: teaching mute theatre and mime, performing mute plays, and helping them organise their own.</p>
+          </li>
+          <li>
+            <h3>Awareness through performance</h3>
+            <p>Productions and mini-plays that address real issues students deal with: academic pressure, peer pressure, cyberbullying, environmental responsibility, and safeguarding.</p>
+          </li>
+          <li>
+            <h3>Student-led learning outcomes</h3>
+            <p>Towards the end of the year, dedicated members produce an individual output: a production proposal, a 5–7 minute solo theatre piece applying a specific theatre theory, or an original dramatic piece.</p>
+          </li>
+        </ol>
+        <p class="note-contrast" data-mask data-reveal>This kind of outreach is what sets us apart as a collective rather than just a club.</p>
+      </div>
+    </section>
+
+    <section class="scene" id="impact" aria-labelledby="impact-title"
+      data-scene data-frame="0.24" data-light="0.85" data-key="0.9">
+      <div class="scene__content">
+        <header class="section-heading" data-mask>
+          <p class="eyebrow">Act three · Impact</p>
+          <h2 id="impact-title" data-reveal>Not measured only in impressions.</h2>
+          <span class="rule" aria-hidden="true"></span>
+        </header>
+        <p data-mask data-reveal>The real return on your sponsorship is not measured only in impressions or logo placements. It is measured in the confidence of a young performer walking onto a stage, the courage to express an idea, the ability to work as part of a team and the belief that their creativity has value.</p>
+        <dl class="stats" data-mask data-stagger>
+          <div class="stat">
+            <dt class="stat__caption">Full-scale play each year</dt>
+            <dd class="stat__figure" data-count="1">1</dd>
+          </div>
+          <div class="stat">
+            <dt class="stat__caption">Strands of work planned</dt>
+            <dd class="stat__figure" data-count="6">6</dd>
+          </div>
+          <div class="stat">
+            <dt class="stat__caption">Minutes per solo piece</dt>
+            <dd class="stat__figure" data-count-range="5,7">5–7</dd>
+          </div>
+          <div class="stat">
+            <dt class="stat__caption">Sponsorship from</dt>
+            <dd class="stat__figure" data-count="10000" data-prefix="₹">₹10,000</dd>
+          </div>
+        </dl>
+        <p class="verbs" data-mask>Learn · Create · Collaborate · Perform · Grow</p>
+      </div>
+    </section>
+
+    <section class="scene scene--text-right" id="leadership" aria-labelledby="leadership-title"
+      data-scene data-frame="-0.24" data-light="0.25" data-key="0.95">
+      <div class="scene__content">
+        <header class="section-heading" data-mask>
+          <p class="eyebrow">Act four · Leadership</p>
+          <h2 id="leadership-title" data-reveal>Led by students.</h2>
+          <span class="rule" aria-hidden="true"></span>
+        </header>
+        <ul class="people" data-mask data-stagger>
+          <li class="card person">
+            <p class="eyebrow">President</p>
+            <h3>Aadi Ramnani</h3>
+            <a href="mailto:aadir6405@students.chirec.ac.in">aadir6405@<wbr>students.chirec.ac.in</a>
+          </li>
+          <li class="card person">
+            <p class="eyebrow">Executive President</p>
+            <h3>Aripra Sharma</h3>
+            <a href="mailto:aripras111460@students.chirec.ac.in">aripras111460@<wbr>students.chirec.ac.in</a>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="scene" id="support" aria-labelledby="support-title"
+      data-scene data-frame="0.24" data-light="0" data-key="1">
+      <div class="scene__content">
+        <header class="section-heading" data-mask>
+          <p class="eyebrow">Act five · Support us</p>
+          <h2 id="support-title" data-reveal>Partner with the next generation of theatre.</h2>
+          <span class="rule" aria-hidden="true"></span>
+        </header>
+        <div data-mask>
+          <p data-reveal>Corporate sponsorship today is increasingly about more than visibility. It is about creating meaningful associations with causes that make a difference.</p>
+          <p data-reveal>Your sponsorship will help create an environment where young people can learn these abilities, express themselves freely and develop their potential through theatre.</p>
+        </div>
+        <ul class="tiers" data-mask data-stagger>
+          <li class="card tier">
+            <div class="tier__head"><p class="tier__name">Bronze sponsor</p><p class="tier__price">₹10,000</p></div>
+            <p class="tier__kind">Visibility &amp; recognition</p>
+            <ul>
+              <li>Brand logo on event posters</li>
+              <li>Brand mention during the performance</li>
+              <li>Sponsor name included in the event programme</li>
+            </ul>
+          </li>
+          <li class="card tier">
+            <div class="tier__head"><p class="tier__name">Silver sponsor</p><p class="tier__price">₹25,000</p></div>
+            <p class="tier__kind">Enhanced visibility &amp; engagement</p>
+            <ul>
+              <li>Brand logo on event posters and banners</li>
+              <li>Social media promotion</li>
+              <li>Brand mention during the performance</li>
+              <li>Brand logo/name in the event programme</li>
+            </ul>
+          </li>
+          <li class="card tier tier--gold">
+            <div class="tier__head"><p class="tier__name">Gold sponsor</p><p class="tier__price">₹50,000</p></div>
+            <p class="tier__kind">Premium brand association</p>
+            <ul>
+              <li>Prominent brand logo placement on event posters and banners</li>
+              <li>Multiple social media promotions</li>
+              <li>Special mention during the performance</li>
+              <li>Prominent brand logo/name in the publication, production, and outreach</li>
+              <li>Special acknowledgment on stage</li>
+            </ul>
+          </li>
+        </ul>
+        <p class="fine" data-mask>Sponsorship amounts are negotiable.</p>
+        <div data-mask>
+          <h3 data-reveal>What your contribution funds</h3>
+          <ul class="funds">
+            <li>Costumes and accessories</li>
+            <li>Props and stage requirements</li>
+            <li>Set design and set pieces</li>
+            <li>Technical and production equipment</li>
+            <li>Promotional and audience outreach activities</li>
+            <li>Other essential production requirements</li>
+          </ul>
+        </div>
+        <div data-mask>
+          <h3 data-reveal>Associate your brand with</h3>
+          <ul class="tags" aria-label="Brand associations">
+            <li class="tag tag--outline">Youth development and nurturing talent</li>
+            <li class="tag tag--outline">Creativity and innovation</li>
+            <li class="tag tag--outline">Education beyond the classroom</li>
+            <li class="tag tag--outline">Teamwork and leadership</li>
+            <li class="tag tag--outline">Arts and cultural development</li>
+            <li class="tag tag--outline">Community engagement</li>
+          </ul>
+        </div>
+        <div class="cta" data-mask>
+          <a class="btn btn--inverse btn--lg" data-cta
+             href="mailto:aadir6405@students.chirec.ac.in?subject=Sponsoring%20the%20Drama%20Collective">Become a sponsor</a>
+          <div class="cta__flourish" data-lottie="cta-flourish" aria-hidden="true"></div>
+        </div>
+        <blockquote class="quote" data-mask>
+          <p data-reveal>Because every great performance begins with someone believing in the performer.</p>
+        </blockquote>
+      </div>
+    </section>
+  </main>
+
+  <footer class="curtain" id="contact" aria-labelledby="contact-title">
+    <img class="curtain__mark" src="./assets/brand/mark-blush.png" alt="" aria-hidden="true">
+    <div class="curtain__grid">
+      <div class="curtain__intro">
+        <p class="eyebrow">Curtain call · Contact</p>
+        <h2 id="contact-title" class="curtain__title">Join us in bringing young dreams to the stage.</h2>
+        <span class="rule" aria-hidden="true"></span>
+        <p>Your organisation can do more than sponsor a production. You can help give young voices a stage.</p>
+      </div>
+      <ul class="curtain__contacts">
+        <li>
+          <span class="eyebrow">President</span>
+          <span class="name">Aadi Ramnani</span>
+          <a href="mailto:aadir6405@students.chirec.ac.in">aadir6405@<wbr>students.chirec.ac.in</a>
+        </li>
+        <li>
+          <span class="eyebrow">Executive President</span>
+          <span class="name">Aripra Sharma</span>
+          <a href="mailto:aripras111460@students.chirec.ac.in">aripras111460@<wbr>students.chirec.ac.in</a>
+        </li>
+      </ul>
+      <dl class="curtain__event">
+        <dt>Venue</dt>
+        <dd>CHIREC International School – ISRP Campus</dd>
+        <dt>Production dates</dt>
+        <dd>Between 22 and 29 October 2026</dd>
+      </dl>
+    </div>
+    <div class="curtain__base">
+      <p class="legal">© 2026 The Drama Collective · CHIREC International School</p>
+      <a class="endorsement" href="https://www.chirec.ac.in" rel="noopener">
+        <img class="endorsement__logo" src="./assets/brand/chirec.webp" alt="CHIREC International School" width="475" height="140">
+        <span>#1 International School in Hyderabad and Telangana</span>
+      </a>
+    </div>
+  </footer>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
