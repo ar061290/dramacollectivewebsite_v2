@@ -6,15 +6,19 @@
 //   spinner  rotation about the camera's viewing axis only        (the clock-hand turn)
 //   frame    the unchanged ring geometry
 // Its stone shading comes from a matcap (view-space lighting), so the two face orientations keep
-// their contrast at every spin angle and under any stage light.
+// their contrast at every spin angle and under any stage light. A second, softer matcap is used in
+// daylight (light theme): shadows lift so the ring reads as pale stone, not a black frame.
 
 import * as THREE from 'three';
 import { buildRing, RING_DEFAULTS } from './ring/ring.js';
 
 export const RING_EYE = RING_DEFAULTS.cameraDistance;
 
-/** A stone sphere lit from the upper left, drawn analytically: light comes from the viewer's side. */
-export function makeStoneMatcap(size = 256) {
+/**
+ * A stone sphere lit from the upper left, drawn analytically: light comes from the viewer's side.
+ * `ambient` and `diffuse` set the floor and the range of the shading (stage: deep shadows).
+ */
+export function makeStoneMatcap(size = 256, { ambient = 0.035, diffuse = 0.78, spec = 0.16 } = {}) {
   const canvas = document.createElement('canvas');
   canvas.width = canvas.height = size;
   const ctx = canvas.getContext('2d');
@@ -31,7 +35,7 @@ export function makeStoneMatcap(size = 256) {
       const ndl = Math.max(0, (nx * L.x + ny * L.y + nz * L.z + 0.12) / 1.12);
       const ndh = Math.max(0, nx * H.x + ny * H.y + nz * H.z);
       const rim = Math.pow(1 - nz, 3) * 0.06;
-      const v = Math.min(1, 0.035 + 0.78 * ndl + 0.16 * Math.pow(ndh, 36) + rim);
+      const v = Math.min(1, ambient + diffuse * ndl + spec * Math.pow(ndh, 36) + rim);
       const s = Math.round(toSRGB(v) * 255);
       const i = (y * size + x) * 4;
       img.data[i] = s; img.data[i + 1] = s; img.data[i + 2] = s; img.data[i + 3] = 255;
@@ -52,6 +56,7 @@ export function makeStoneMatcap(size = 256) {
 export function createRing({ albedo, normal }) {
   const { ring, lower, upper } = buildRing();
   const matcap = makeStoneMatcap();
+  const dayMatcap = makeStoneMatcap(256, { ambient: 0.34, diffuse: 0.6, spec: 0.08 });
   const material = new THREE.MeshMatcapMaterial({
     name: 'RingStone',
     matcap,
@@ -91,7 +96,7 @@ export function createRing({ albedo, normal }) {
   root.name = 'PenroseRing';
   root.add(spinner);
 
-  return { root, spinner, frame, material, matcap, innerRadius, meta: ring };
+  return { root, spinner, frame, material, matcap, dayMatcap, innerRadius, meta: ring };
 }
 
 /** Place the ring behind a point at `distance` from the camera (keeps the image identical). */

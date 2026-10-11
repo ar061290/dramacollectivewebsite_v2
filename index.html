@@ -23,6 +23,8 @@
   }
   </script>
   <script>
+    // theme before first paint: the saved choice, else the dark theatre
+    try { var t = localStorage.getItem('dc-theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}
     document.documentElement.classList.add('has-js');
     if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('is-intro');
   </script>
@@ -30,7 +32,7 @@
 <body>
   <a class="skip-link" href="#about">Skip to content</a>
 
-  <div class="loader" aria-hidden="true">
+  <div class="loader theme-ink" aria-hidden="true">
     <div class="loader__inner">
       <div class="loader__light" data-lottie="loader"></div>
       <p class="eyebrow loader__status" data-loader-status>Lighting the stage</p>
@@ -45,6 +47,7 @@
 
   <div class="cursor" aria-hidden="true">
     <svg viewBox="-10 -10 20 20"><path d="M0-10C1-2 2-1 10 0 2 1 1 2 0 10-1 2-2 1-10 0-2-1-1-2 0-10Z" fill="currentColor"/></svg>
+    <span class="cursor__hint">Drag</span>
   </div>
 
   <header class="topbar" data-topbar>
@@ -60,6 +63,15 @@
         <li><a href="#contact">Contact</a></li>
       </ul>
     </nav>
+    <div class="topbar__tools">
+      <button class="icon-btn music-toggle" type="button" aria-pressed="false" aria-label="Piano music" title="Play piano music" data-music-toggle>
+        <svg viewBox="0 0 20 20" aria-hidden="true"><rect class="bar" x="2.5" y="8" width="2.2" height="9"/><rect class="bar" x="6.9" y="3" width="2.2" height="14"/><rect class="bar" x="11.3" y="6" width="2.2" height="11"/><rect class="bar" x="15.7" y="9" width="2.2" height="8"/></svg>
+      </button>
+      <button class="icon-btn theme-toggle" type="button" aria-pressed="false" aria-label="Light mode" title="House lights" data-theme-toggle>
+        <svg class="theme-toggle__sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="3.6" fill="currentColor"/><g stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M10 1.8v2.1M10 16.1v2.1M1.8 10h2.1M16.1 10h2.1M4.2 4.2l1.5 1.5M14.3 14.3l1.5 1.5M4.2 15.8l1.5-1.5M14.3 5.7l1.5-1.5"/></g></svg>
+        <svg class="theme-toggle__moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M15.9 12.6A6.6 6.6 0 0 1 7.4 4.1a6.6 6.6 0 1 0 8.5 8.5Z" fill="currentColor"/></svg>
+      </button>
+    </div>
     <button class="topbar__menu" type="button" aria-expanded="false" aria-controls="menu-sheet" data-menu-toggle>Menu</button>
     <a class="btn btn--inverse btn--sm" href="#support">Sponsor us</a>
     <div class="topbar__sheet" id="menu-sheet" data-menu-sheet>
@@ -280,7 +292,7 @@
     </section>
   </main>
 
-  <footer class="curtain" id="contact" aria-labelledby="contact-title">
+  <footer class="curtain theme-ink" id="contact" aria-labelledby="contact-title">
     <img class="curtain__mark" src="./assets/brand/mark-blush.png" alt="" aria-hidden="true">
     <div class="curtain__grid">
       <div class="curtain__intro">
@@ -309,7 +321,10 @@
       </dl>
     </div>
     <div class="curtain__base">
-      <p class="legal">© 2026 The Drama Collective · CHIREC International School</p>
+      <div class="curtain__legal">
+        <p class="legal">© 2026 The Drama Collective · CHIREC International School</p>
+        <p class="credits">Music: Satie, Gymnopédie No. 1 (Robin Alciatore); Beethoven, Sonata Pathétique, Adagio cantabile (Paul Pitman); Chopin, Nocturne Op. 15 No. 1 (Luke Faulkner). Public-domain recordings from <a href="https://musopen.org" rel="noopener">Musopen</a>, via <a href="https://commons.wikimedia.org" rel="noopener">Wikimedia Commons</a>.</p>
+      </div>
       <a class="endorsement" href="https://www.chirec.ac.in" rel="noopener">
         <img class="endorsement__logo" src="./assets/brand/chirec.webp" alt="CHIREC International School" width="475" height="140">
         <span>#1 International School in Hyderabad and Telangana</span>

@@ -2,8 +2,10 @@
 //
 // Camera rig: the camera orbits the statue (scroll arc + cursor parallax) and dollies in slightly.
 // The ring rides on the camera, so its impossible-shape illusion is exact at every frame; it only
-// ever turns about the camera's viewing axis. The statue is sized so that its bounding sphere stays
-// inside the ring's hole at any spin, so the two never overlap on screen.
+// ever turns about the camera's viewing axis. The statue stands on a turntable of its own (scroll,
+// drag and a lean toward the cursor), independent of the ring. It is sized so that its bounding
+// sphere, centred on the turning axis, stays inside the ring's hole at any spin and any turn, so the
+// two never overlap on screen.
 //
 // GSAP writes plain numbers into `stage.state`; the render loop reads them.
 
@@ -14,6 +16,9 @@ import { loadStatue, prepareStatue } from './statue.js';
 import { SilhouetteMask } from './silhouette.js';
 
 const DEG = Math.PI / 180;
+const DRAG_RAD_PER_PX = Math.PI / 420; // a 420 px drag turns the statue half way round
+const MAX_FLING = 8; // rad/s; a hard flick coasts about half a turn
+const FOLLOW = 14 * DEG; // how far the statue leans toward the cursor
 
 export class Stage {
   /**
@@ -38,19 +43,24 @@ export class Stage {
       ringReveal: 0, // intro: ring opacity
       lightMix: 0, // 0 warm, 1 cool
       keyLevel: 1, // per-scene key light level
-      ringLevel: 1, // per-scene ring brightness (dimmed behind text)
+      ringLevel: 1, // per-scene ring brightness (eased back behind text)
       frameX: 0, frameY: 0, // composition offset, fractions of the viewport (right / up)
       spin: 0, // ring turn about the viewing axis (radians)
+      statueSpin: 0, // statue turn about its own vertical axis (radians), driven by scroll
       arc: 0, // camera orbit around the statue (radians)
       dolly: 1, // camera distance multiplier (1 = hero, < 1 = closer)
       parX: 0, parY: 0, // smoothed cursor parallax, -1..1
+      daylight: 0, // 0 = the dark theatre, 1 = house lights up (light theme)
     };
+    // the statue's own turn on top of the scroll: drag (with fling), lean toward the cursor, hover
+    this.turn = { drag: 0, vel: 0, held: false, follow: 0, hover: 0, hoverTarget: 0 };
     this.pointer = { x: 0, y: 0 };
     this.fill = 0.68; // statue height as a fraction of the viewport (hero, desktop)
     this.running = false;
     this.disposed = false;
     this._lastSig = '';
     this._maskDue = 0;
+    this._shadowYaw = NaN;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -60,7 +70,7 @@ export class Stage {
     renderer.setClearColor(0x000000, 0);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    renderer.shadowMap.autoUpdate = false; // statue and lights never move; re-render the map on demand
+    renderer.shadowMap.autoUpdate = false; // lights never move; the map is redrawn only when the statue turns
     container.appendChild(renderer.domElement);
     this.renderer = renderer;
 
@@ -124,7 +134,11 @@ export class Stage {
     if (this.disposed) return;
 
     this.statue = prepareStatue(statue.object, { kind: statue.kind, yaw });
-    this.scene.add(this.statue.root);
+    // the turntable turns about the statue's vertical axis (x = z = 0, through the plinth)
+    this.turntable = new THREE.Group();
+    this.turntable.name = 'Turntable';
+    this.turntable.add(this.statue.root);
+    this.scene.add(this.turntable);
 
     this.ring = createRing({ albedo, normal });
     this.camera.add(this.ring.root);
@@ -235,15 +249,59 @@ export class Stage {
     this.pointer.y = ny;
   }
 
+  // ---- statue interaction (see src/scene/interaction.js) ----
+
+  /** The cursor is over the statue: the key light leans in a little. */
+  setHover(on) {
+    this.turn.hoverTarget = on ? 1 : 0;
+  }
+
+  /** Start a drag: any fling still running stops under the hand. */
+  grab() {
+    this.turn.held = true;
+    this.turn.vel = 0;
+  }
+
+  /** Turn the statue by a horizontal drag of `dx` CSS pixels. */
+  dragBy(dx) {
+    this.turn.drag += dx * DRAG_RAD_PER_PX;
+  }
+
+  /** End a drag; `pxPerSec` is the release speed, carried on as a fling that slows to rest. */
+  release(pxPerSec = 0) {
+    this.turn.held = false;
+    const v = pxPerSec * DRAG_RAD_PER_PX;
+    this.turn.vel = this.reducedMotion ? 0 : Math.max(-MAX_FLING, Math.min(MAX_FLING, v));
+  }
+
   _updateRig(dt) {
     const s = this.state;
+    const t = this.turn;
     if (!this.reducedMotion) {
       const k = 1 - Math.exp(-dt * 1.6); // heavy damping
       s.parX += (this.pointer.x - s.parX) * k;
       s.parY += (this.pointer.y - s.parY) * k;
+      if (!t.held && t.vel) {
+        t.drag += t.vel * dt;
+        t.vel *= Math.exp(-dt * 2.6);
+        if (Math.abs(t.vel) < 0.01) t.vel = 0;
+      }
+      // the statue turns its head toward the cursor, a little more slowly than the camera follows
+      t.follow += (this.pointer.x * FOLLOW - t.follow) * (1 - Math.exp(-dt * 1.2));
     } else {
       s.parX = s.parY = 0;
+      t.follow = 0;
     }
+    t.hover += (t.hoverTarget - t.hover) * (dt ? 1 - Math.exp(-dt * 6) : 1);
+
+    // statue: its own turn, independent of the ring
+    const statueYaw = s.statueSpin + t.drag + t.follow;
+    this.turntable.rotation.y = statueYaw;
+    if (Math.abs(statueYaw - this._shadowYaw) > 0.001 || Number.isNaN(this._shadowYaw)) {
+      this._shadowYaw = statueYaw;
+      this.renderer.shadowMap.needsUpdate = true;
+    }
+
     const c = this.statue.center;
     const yaw = s.arc + s.parX * 3 * DEG;
     const pitch = this.pitch - s.parY * 2 * DEG;
@@ -267,29 +325,40 @@ export class Stage {
     const s = this.state;
     const { key, rim, hemi } = this.lights;
     const lit = s.stageLight;
+    const day = s.daylight;
+    const hover = this.turn.hover;
     key.color.copy(this.colors.warm).lerp(this.colors.cool, s.lightMix);
-    key.intensity = this.keyPower * s.keyLevel * lit;
-    rim.intensity = this.rimPower * (0.6 + 0.4 * s.lightMix) * lit;
-    hemi.intensity = 0.06 * lit;
-    this.scene.environmentIntensity = 0.16 * lit;
+    key.intensity = this.keyPower * s.keyLevel * lit * (1 + 0.22 * hover) * (1 - 0.25 * day);
+    rim.intensity = this.rimPower * (0.6 + 0.4 * s.lightMix) * lit * (1 + 0.8 * hover);
+    // house lights: an even sky fill that does not depend on the spotlight, so the statue reads as
+    // stone in daylight rather than a silhouette on a pale ground
+    hemi.intensity = 0.06 * lit + 1.1 * day;
+    this.scene.environmentIntensity = 0.16 * lit + 0.3 * day;
+    this.renderer.toneMappingExposure = 1 - 0.12 * day;
     const pool = this.floor.pool.material;
     pool.color.copy(key.color);
-    pool.opacity = 0.16 * lit * s.keyLevel;
+    pool.opacity = 0.16 * lit * s.keyLevel * (1 - day);
+    this.floor.shadow.material.opacity = 0.5 - 0.2 * day;
     const m = this.ring.material;
     m.opacity = s.ringReveal;
     m.transparent = s.ringReveal < 0.999;
     m.depthWrite = !m.transparent;
-    // the ring is a supporting frame: kept well below the statue's brightness
-    m.color.copy(this.ringTint).multiplyScalar(0.36 * s.ringLevel * (0.55 + 0.45 * lit)).multiply(
-      this._tmpColor.copy(key.color).lerp(this._white, 0.6),
+    // the ring is a supporting frame: lit, but kept below the statue's brightness; in daylight it
+    // turns to pale stone under the softer matcap
+    m.matcap = day > 0.5 ? this.ring.dayMatcap : this.ring.matcap;
+    const stageRing = 0.56 * s.ringLevel * (0.55 + 0.45 * lit);
+    const ringLight = stageRing + (0.86 + 0.1 * s.ringLevel - stageRing) * day;
+    m.color.copy(this.ringTint).multiplyScalar(ringLight).multiply(
+      this._tmpColor.copy(key.color).lerp(this._white, 0.6 + 0.4 * day),
     );
   }
 
   _signature() {
     const s = this.state;
+    const t = this.turn;
     const r = (v) => Math.round(v * 1e4);
-    return [s.stageLight, s.ringReveal, s.lightMix, s.keyLevel, s.ringLevel, s.frameX, s.frameY, s.spin, s.arc, s.dolly, s.parX, s.parY,
-      this.width, this.height, this.camera.fov].map(r).join(',');
+    return [s.stageLight, s.ringReveal, s.lightMix, s.keyLevel, s.ringLevel, s.frameX, s.frameY, s.spin, s.statueSpin, s.arc, s.dolly,
+      s.parX, s.parY, s.daylight, t.drag, t.follow, t.hover, this.width, this.height, this.camera.fov].map(r).join(',');
   }
 
   _tick() {
@@ -353,6 +422,8 @@ export class Stage {
     });
     for (const l of Object.values(this.lights)) l.dispose?.();
     this.mask?.dispose();
+    this.ring?.matcap.dispose();
+    this.ring?.dayMatcap.dispose();
     this.scene.environment = null;
     this.envTarget.dispose();
     this.scene.clear();

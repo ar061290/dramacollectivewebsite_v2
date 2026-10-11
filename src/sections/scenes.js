@@ -3,12 +3,14 @@
 //               clear negative space beside it
 //   data-light  0 warm ... 1 cool spotlight
 //   data-key    key light level
-// Across the whole page the ring turns one full revolution about the viewing axis (scrub 1.2),
-// the camera arcs 22 degrees round the statue and closes in slightly.
+// Across the whole page the ring turns four full revolutions about the viewing axis (scrub 1.2),
+// the camera arcs 22 degrees round the statue and closes in slightly. The statue makes one full
+// turn of its own the other way, on a slower, eased track, so the two never move in step.
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger.js';
 
 const DEG = Math.PI / 180;
+const RING_TURNS = 4;
 
 export function setupScenes({ stage }) {
   const state = stage.state;
@@ -33,7 +35,7 @@ export function setupScenes({ stage }) {
         frameY: mobile ? 0.2 : 0,
         lightMix: parseFloat(el.dataset.light) || 0,
         keyLevel: parseFloat(el.dataset.key) || 1,
-        ringLevel: 0.5, // the ring steps back while text is on stage
+        ringLevel: 0.8, // the ring steps back a little while text is on stage
       },
     }));
 
@@ -61,15 +63,22 @@ export function setupScenes({ stage }) {
 
     if (!reduce) {
       gsap.fromTo(state, { spin: 0, arc: 0, dolly: 1 }, {
-        spin: Math.PI * 2,
+        spin: Math.PI * 2 * RING_TURNS,
         arc: -22 * DEG,
         dolly: stage.dollyMin,
         ease: 'none',
         immediateRender: false,
         scrollTrigger: { trigger: document.body, start: 'top top', end: 'bottom bottom', scrub: 1.2 },
       });
+      // the statue: its own turntable, opposite direction, eased and lagging further behind
+      gsap.fromTo(state, { statueSpin: 0 }, {
+        statueSpin: -Math.PI * 2,
+        ease: 'sine.inOut',
+        immediateRender: false,
+        scrollTrigger: { trigger: document.body, start: 'top top', end: 'bottom bottom', scrub: 2.4 },
+      });
     } else {
-      Object.assign(state, { spin: 0, arc: 0, dolly: 1 });
+      Object.assign(state, { spin: 0, statueSpin: 0, arc: 0, dolly: 1 });
     }
   });
 

@@ -44,8 +44,9 @@ export async function loadStatue(url, { manager, onBytes, dracoPath = DRACO_PATH
 /**
  * Normalise the statue: turn it by `yaw`, scale it to `height`, stand its base on y = 0 centred on
  * the footprint, and make the stone read as stone (metalness 0, roughness ~0.45, Meshy maps kept).
- * Returns { root, center, radius, height, averageColor }, where `center` and `radius` describe a
- * sphere that contains every vertex (used to keep the statue clear of the ring).
+ * Returns { root, center, radius, height, averageColor }. The footprint sits on the vertical axis
+ * x = z = 0, which the stage turns the statue about. `center` and `radius` describe a sphere centred
+ * on that axis that contains every vertex at any turn (used to keep the statue clear of the ring).
  */
 export function prepareStatue(object, { kind, height = 2, yaw = Math.PI, roughness = 0.45 } = {}) {
   const spin = new THREE.Group();
@@ -70,9 +71,10 @@ export function prepareStatue(object, { kind, height = 2, yaw = Math.PI, roughne
   root.position.set(-foot.x, -box.min.y, -foot.z);
   root.updateMatrixWorld(true);
 
-  // bounding sphere about the box centre: contains every vertex
+  // bounding sphere on the turning axis, at mid-height: turning about y keeps x² + z² per vertex,
+  // so this sphere contains every vertex at any turn
   box.setFromObject(root, true);
-  const center = box.getCenter(new THREE.Vector3());
+  const center = new THREE.Vector3(0, box.getCenter(v).y, 0);
   let radius = 0;
   forEachVertex(root, (p) => { radius = Math.max(radius, p.distanceTo(center)); }, v);
 

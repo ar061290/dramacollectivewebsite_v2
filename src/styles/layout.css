@@ -38,13 +38,31 @@
   width: 18px; height: 18px;
   margin: -9px 0 0 -9px;
   pointer-events: none;
-  color: var(--gold-500);
+  color: var(--cursor);
   opacity: 0;
   transition: opacity var(--dur-base) var(--ease-curtain);
 }
 .cursor svg { width: 100%; height: 100%; display: block; transition: transform var(--dur-base) var(--ease-curtain); }
 .has-cursor .cursor.is-visible { opacity: 1; }
 .has-cursor .cursor.is-over-link svg { transform: rotate(45deg); }
+/* over the statue: the star grows and offers a drag; while turning it, it turns too */
+.is-over-statue .cursor svg { transform: scale(1.45); }
+.is-grabbing .cursor svg { transform: scale(1.2) rotate(45deg); }
+.cursor__hint {
+  position: absolute;
+  left: 22px; top: 50%;
+  transform: translate(-4px, -50%);
+  font-family: var(--font-ui);
+  font-size: var(--size-micro);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--ls-eyebrow);
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity var(--dur-base) var(--ease-curtain), transform var(--dur-base) var(--ease-curtain);
+}
+.is-over-statue:not(.is-grabbing) .cursor__hint { opacity: 1; transform: translate(0, -50%); }
+.is-over-statue, .is-grabbing { -webkit-user-select: none; user-select: none; }
 .has-cursor, .has-cursor a, .has-cursor button { cursor: none; }
 @media (hover: none), (pointer: coarse) { .cursor { display: none; } }
 
@@ -69,7 +87,7 @@ main { position: relative; z-index: var(--z-content); }
   letter-spacing: var(--ls-display);
 }
 .hero__content .rule { margin: var(--space-4) 0; }
-.hero__tagline { font-size: var(--size-body-l); color: var(--plum-100); margin: 0; }
+.hero__tagline { font-size: var(--size-body-l); color: var(--fg-strong); margin: 0; }
 .hero__cue {
   position: absolute;
   left: 50%;
@@ -93,19 +111,19 @@ main { position: relative; z-index: var(--z-content); }
 .scene__content > * + * { margin-top: var(--space-5); }
 .scene__content > .section-heading + * { margin-top: 0; }
 
-.scene h3 { font-family: var(--font-ui); font-weight: var(--weight-bold); font-size: var(--size-subheading); color: var(--plum-100); line-height: var(--lh-tight); }
+.scene h3 { font-family: var(--font-ui); font-weight: var(--weight-bold); font-size: var(--size-subheading); color: var(--fg-strong); line-height: var(--lh-tight); }
 
 /* Act two: the programme */
 .production { display: grid; gap: var(--space-3); }
 .production h3 { font-family: var(--font-display); font-weight: 400; font-size: var(--size-heading); line-height: var(--lh-title); }
 .production__meta { display: grid; gap: var(--space-2); margin: 0; }
 .production__meta div { display: grid; grid-template-columns: 6.5rem 1fr; gap: var(--space-3); }
-.production__meta dt { font-family: var(--font-ui); font-size: var(--size-micro); font-weight: var(--weight-bold); letter-spacing: var(--ls-eyebrow); text-transform: uppercase; color: var(--plum-300); padding-top: 4px; }
-.production__meta dd { margin: 0; color: var(--plum-100); }
+.production__meta dt { font-family: var(--font-ui); font-size: var(--size-micro); font-weight: var(--weight-bold); letter-spacing: var(--ls-eyebrow); text-transform: uppercase; color: var(--fg-muted); padding-top: 4px; }
+.production__meta dd { margin: 0; color: var(--fg-strong); }
 .programme { list-style: none; display: grid; gap: var(--space-5); }
 .programme li { display: grid; gap: var(--space-2); }
 .programme p { margin: 0; }
-.note-contrast { font-family: var(--font-display); font-size: var(--size-heading); line-height: 1.35; color: var(--plum-100); max-width: 22em; }
+.note-contrast { font-family: var(--font-display); font-size: var(--size-heading); line-height: 1.35; color: var(--fg-strong); max-width: 22em; }
 
 /* Act three: figures */
 .stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-6) var(--space-5); margin: 0; }
@@ -116,7 +134,7 @@ main { position: relative; z-index: var(--z-content); }
   font-size: var(--size-micro);
   letter-spacing: var(--ls-eyebrow);
   text-transform: uppercase;
-  color: var(--gold-500);
+  color: var(--accent);
 }
 
 /* Act four: leadership */
@@ -128,21 +146,21 @@ main { position: relative; z-index: var(--z-content); }
 .tiers { list-style: none; display: grid; gap: var(--space-4); }
 .tier { display: grid; gap: var(--space-3); }
 .tier__head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; }
-.tier__name { font-family: var(--font-ui); font-weight: var(--weight-bold); font-size: var(--size-body-s); letter-spacing: var(--ls-eyebrow); text-transform: uppercase; color: var(--plum-100); margin: 0; }
-.tier__price { font-family: var(--font-ui); font-weight: var(--weight-black); font-size: 32px; line-height: 1; color: var(--gold-500); margin: 0; font-variant-numeric: tabular-nums; }
-.tier__kind { font-family: var(--font-display); font-size: var(--size-heading); line-height: var(--lh-title); color: var(--plum-100); margin: 0; }
+.tier__name { font-family: var(--font-ui); font-weight: var(--weight-bold); font-size: var(--size-body-s); letter-spacing: var(--ls-eyebrow); text-transform: uppercase; color: var(--fg-strong); margin: 0; }
+.tier__price { font-family: var(--font-ui); font-weight: var(--weight-black); font-size: 32px; line-height: 1; color: var(--accent); margin: 0; font-variant-numeric: tabular-nums; }
+.tier__kind { font-family: var(--font-display); font-size: var(--size-heading); line-height: var(--lh-title); color: var(--fg-strong); margin: 0; }
 .tier ul { list-style: none; display: grid; gap: var(--space-2); }
 .tier li { padding-left: var(--space-5); position: relative; font-size: var(--size-body-s); }
-.tier li::before { content: ""; position: absolute; left: 0; top: .72em; width: 12px; height: 1px; background: var(--gold-500); }
-.tier--gold { background: var(--plum-700); border-color: var(--border-gold); }
+.tier li::before { content: ""; position: absolute; left: 0; top: .72em; width: 12px; height: 1px; background: var(--rule-color); }
+.tier--gold { background: var(--card-feature-bg); border-color: var(--border-gold); }
 .tier--gold::before { height: 5px; }
 .funds { list-style: none; display: grid; gap: var(--space-2); }
 .funds li { padding-left: var(--space-5); position: relative; }
-.funds li::before { content: ""; position: absolute; left: 0; top: .8em; width: 12px; height: 1px; background: var(--gold-500); }
+.funds li::before { content: ""; position: absolute; left: 0; top: .8em; width: 12px; height: 1px; background: var(--rule-color); }
 .tags { list-style: none; display: flex; flex-wrap: wrap; gap: var(--space-2); }
 .cta { display: inline-grid; justify-items: start; gap: var(--space-2); }
 .cta__flourish { width: 160px; height: 12px; pointer-events: none; }
-.fine { font-size: var(--size-caption); color: var(--plum-300); }
+.fine { font-size: var(--size-caption); color: var(--fg-muted); }
 
 /* ---- Footer: the curtain call ---- */
 .curtain {
@@ -190,12 +208,55 @@ main { position: relative; z-index: var(--z-content); }
   gap: var(--space-5);
   max-width: var(--container);
 }
+.curtain__legal { display: grid; gap: var(--space-2); max-width: 40rem; }
 .legal { font-family: var(--font-ui); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--plum-300); margin: 0; }
+.credits { font-size: var(--size-caption); line-height: 1.5; color: var(--plum-300); margin: 0; max-width: none; }
+.credits a { color: var(--plum-200); }
 /* Chirec endorsement: right-aligned, smaller than the Collective's mark, with its own line */
 .endorsement { display: flex; align-items: center; gap: var(--space-4); color: var(--plum-200); text-decoration: none; }
 .endorsement:hover { color: var(--plum-100); text-decoration: none; }
 .endorsement__logo { background: var(--white); padding: 6px 10px; width: 132px; height: auto; }
 .endorsement span { font-size: var(--size-caption); line-height: 1.4; max-width: 15em; }
+
+/* ---- Text grounds: a feathered panel of the page colour behind the hero copy (every width) and
+   each scene's text column (tablet and up; phones use the scrim further down), so copy stays
+   legible where the lit ring passes behind it. ---- */
+.hero__content { isolation: isolate; }
+.hero__content::before {
+  content: "";
+  position: absolute;
+  inset: -56px -72px;
+  z-index: -1;
+  pointer-events: none;
+  background: rgb(var(--scrim-rgb) / .84);
+  -webkit-mask-image:
+    linear-gradient(to right, transparent, #000 72px, #000 calc(100% - 72px), transparent),
+    linear-gradient(to bottom, transparent, #000 56px, #000 calc(100% - 56px), transparent);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to right, transparent, #000 72px, #000 calc(100% - 72px), transparent),
+    linear-gradient(to bottom, transparent, #000 56px, #000 calc(100% - 56px), transparent);
+  mask-composite: intersect;
+}
+@media (min-width: 768px) {
+  .scene__content { position: relative; isolation: isolate; }
+  .scene__content::before {
+    content: "";
+    position: absolute;
+    inset: -56px -72px;
+    z-index: -1;
+    pointer-events: none;
+    background: rgb(var(--scrim-rgb) / .84);
+    -webkit-mask-image:
+      linear-gradient(to right, transparent, #000 72px, #000 calc(100% - 72px), transparent),
+      linear-gradient(to bottom, transparent, #000 56px, #000 calc(100% - 56px), transparent);
+    -webkit-mask-composite: source-in;
+    mask-image:
+      linear-gradient(to right, transparent, #000 72px, #000 calc(100% - 72px), transparent),
+      linear-gradient(to bottom, transparent, #000 56px, #000 calc(100% - 56px), transparent);
+    mask-composite: intersect;
+  }
+}
 
 /* ---- Tablet ---- */
 @media (max-width: 1100px) {
@@ -215,7 +276,7 @@ main { position: relative; z-index: var(--z-content); }
   .scene__content,
   .scene--text-right .scene__content {
     padding: var(--space-8) var(--stage-gutter) var(--space-8);
-    background: linear-gradient(to bottom, rgba(42,13,28,0) 0, var(--plum-900) var(--space-8));
+    background: linear-gradient(to bottom, rgb(var(--scrim-rgb) / 0) 0, rgb(var(--scrim-rgb)) var(--space-8));
   }
   .stats, .people, .curtain__contacts { grid-template-columns: minmax(0, 1fr); }
   .curtain__intro, .curtain__contacts, .curtain__event { grid-column: 1 / -1; }

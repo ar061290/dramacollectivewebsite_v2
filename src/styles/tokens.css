@@ -64,3 +64,55 @@
 @media (min-width: 768px) {
   :root { --stage-gutter: var(--space-8); }
 }
+
+/* ------------------------------------------------------------------------------------------
+   Theme roles. Components read these, never raw palette values.
+   Dark (default) is the system's inverted, on-stage register; light ("house lights up") is its
+   standard register: plum-100 page, white cards, plum-800 headings, slate-700 text, plum-500
+   accents, the gold rule kept. .theme-ink pins a block to the dark register in either theme
+   (the loader and the curtain-call footer).
+   ------------------------------------------------------------------------------------------ */
+:root, .theme-ink {
+  --bg: var(--surface-ink-deep);
+  --fg: var(--plum-200);              /* running text */
+  --fg-strong: var(--plum-100);       /* headings, lead, names, figures' labels */
+  --fg-muted: var(--plum-300);        /* captions, field labels, fine print */
+  --accent: var(--gold-500);          /* eyebrows, figures, prices, links */
+  --accent-hover: var(--gold-300);
+  --rule-color: var(--gold-500);
+  --focus: var(--gold-500);
+  --card-bg: var(--surface-ink);
+  --card-feature-bg: var(--plum-700);
+  --line: var(--border-on-dark);
+  --tag-bg: rgba(235,216,140,.16);
+  --bar-bg: rgba(64,20,42,.88);       /* the top bar over scrolled content */
+  --sheet-bg: var(--plum-800);
+  --scrim-rgb: 42 13 28;              /* plum-900, for the mobile text scrim */
+  --btn-bg: var(--gold-500); --btn-fg: var(--plum-900); --btn-bg-hover: var(--gold-300); --btn-bg-active: var(--gold-600);
+  --select-bg: var(--gold-500); --select-fg: var(--plum-900);
+  --star: var(--gold-500);
+  --star-glow: var(--gold-300);
+  --cursor: var(--gold-500);
+}
+:root[data-theme="light"] {
+  --bg: var(--surface-page);
+  --fg: var(--text-body);
+  --fg-strong: var(--text-strong);
+  --fg-muted: var(--plum-600);        /* slate-500 falls under 4.5:1 on plum-100 */
+  --accent: var(--text-accent);
+  --accent-hover: var(--link-hover);
+  --rule-color: var(--gold-500);
+  --focus: var(--plum-500);
+  --card-bg: var(--surface-card);
+  --card-feature-bg: var(--gold-100);
+  --line: var(--border-hairline);
+  --tag-bg: rgba(134,52,105,.10);
+  --bar-bg: rgba(243,231,233,.88);    /* plum-100 at the same 88% */
+  --sheet-bg: var(--surface-raised);
+  --scrim-rgb: 243 231 233;
+  --btn-bg: var(--surface-ink); --btn-fg: var(--plum-100); --btn-bg-hover: var(--plum-700); --btn-bg-active: var(--plum-900);
+  --select-bg: var(--plum-800); --select-fg: var(--plum-100);
+  --star: var(--gold-700);
+  --star-glow: var(--gold-600);
+  --cursor: var(--plum-600);
+}

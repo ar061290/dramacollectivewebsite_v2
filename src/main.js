@@ -1,4 +1,5 @@
-// Boot: loader, stage (lazy), constellation sky, scroll scenes, reveals, nav, cursor, intro.
+// Boot: loader, stage (lazy), constellation sky, scroll scenes, reveals, nav, cursor, theme,
+// music, intro.
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger.js';
 import { SplitText } from 'gsap/SplitText.js';
@@ -13,6 +14,8 @@ import { setupCursor } from './animations/cursor.js';
 import { setupReveals } from './sections/reveals.js';
 import { setupCounters } from './sections/counters.js';
 import { setupScenes } from './sections/scenes.js';
+import { setupTheme, skyTheme, currentTheme } from './ui/theme.js';
+import { setupMusic } from './ui/music.js';
 
 gsap.registerPlugin(ScrollTrigger, SplitText, ScrollToPlugin, CustomEase);
 CustomEase.create('curtain', '.22,.61,.36,1'); // --ease-curtain from the design system
@@ -29,6 +32,16 @@ let stage = null;
 let sky = null;
 
 async function boot() {
+  // the theme and music switches work from the first moment, before the stage has loaded
+  cleanups.push(setupMusic({ reduced }));
+  cleanups.push(setupTheme({
+    reduced,
+    onChange: (theme) => {
+      sky?.setTheme(skyTheme());
+      if (stage) gsap.to(stage.state, { daylight: theme === 'light' ? 1 : 0, duration: reduced ? 0 : 0.7, ease: 'sine.inOut', overwrite: 'auto' });
+    },
+  }));
+
   const loader = document.querySelector('.loader');
   const status = document.querySelector('[data-loader-status]');
   const loaderAnim = await loadLottie(document.querySelector('[data-lottie="loader"]'), 'loader', { loop: !reduced, autoplay: !reduced });
@@ -37,7 +50,7 @@ async function boot() {
   // the sky works everywhere, even without WebGL
   sky = new ConstellationField({
     canvas: document.querySelector('.stage__stars'),
-    color: readToken('--gold-500'),
+    theme: skyTheme(),
     reducedMotion: reduced,
     covers: (x, y) => (stage ? stage.covers(x, y) : false),
   });
@@ -46,7 +59,11 @@ async function boot() {
   const gl = probeWebGL();
   if (gl.ok && !prefersStatic(gl.renderer)) {
     try {
-      const { Stage } = await import('./scene/Stage.js');
+      const [{ Stage }, { setupStatueInteraction }] = await Promise.all([
+        import('./scene/Stage.js'),
+        import('./scene/interaction.js'),
+      ]);
+      app.setupStatueInteraction = setupStatueInteraction;
       stage = new Stage({
         container: document.querySelector('.stage__gl'),
         reducedMotion: reduced,
@@ -57,6 +74,7 @@ async function boot() {
           floor: readToken('--plum-800'),
         },
       });
+      stage.state.daylight = currentTheme() === 'light' ? 1 : 0;
       await stage.load({
         statueUrl: ASSETS.statue,
         textureUrls: { albedo: ASSETS.albedo, normal: ASSETS.normal },
@@ -87,6 +105,7 @@ async function boot() {
     stage.renderOnce();
     stage.start();
     cleanups.push(setupScenes({ stage }));
+    cleanups.push(app.setupStatueInteraction({ stage, sky }));
     const onPointer = (e) => {
       if (e.pointerType !== 'mouse' || reduced) return;
       stage.setPointer((e.clientX / innerWidth) * 2 - 1, -((e.clientY / innerHeight) * 2 - 1));
@@ -124,7 +143,7 @@ async function boot() {
   watchVisibility();
 }
 
-const app = { scrollCue: null };
+const app = { scrollCue: null, setupStatueInteraction: null };
 
 async function setupLotties() {
   // nav mark: the curtain rises on the mark once, and again on hover

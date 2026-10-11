@@ -22,9 +22,10 @@ Opening `index.html` directly from disk (`file://`) does not work, because modul
 ```
 index.html               all copy, all sections, the import map
 src/
-  main.js                boot: loader, stage, sky, scenes, nav, cursor, reveals, intro, teardown
+  main.js                boot: theme, music, loader, stage, sky, scenes, nav, cursor, reveals, intro, teardown
   scene/                 three.js stage
-    Stage.js             renderer, lights, camera rig, ring, render-on-change loop, dispose()
+    Stage.js             renderer, lights, camera rig, ring, statue turntable, render-on-change loop, dispose()
+    interaction.js       hover, drag-to-turn and fling for the statue (mouse and touch)
     statue.js            GLB/STL loading (meshopt + Draco), centring, marble material settings
     ringStone.js         the Penrose ring in the statue's stone, locked to the camera
     ring/                ring geometry (unchanged from the Penrose model)
@@ -33,7 +34,8 @@ src/
   constellation/         cursor-trail star field (single 2D canvas, spatial grid, rAF)
   sections/              scroll choreography (scenes.js), line reveals, count-ups
   animations/            intro timeline, nav, star cursor, Lottie loader
-  styles/                tokens.css (design system + extensions), components, layout
+  ui/                    theme.js (dark / light switch), music.js (piano player)
+  styles/                tokens.css (design system + extensions + theme roles), components, layout
   util/env.js            reduced motion, WebGL probe, low-power check
 assets/
   models/statue.glb      compressed statue (meshopt, WebP 2048, 4.2 MB)
@@ -75,7 +77,8 @@ To add a section, copy one, give it `data-scene` plus those three attributes, an
   ```js
   const st = dramaCollective.stage;
   st.stop();
-  Object.assign(st.state, { frameX: 0, frameY: 0, spin: 0, arc: 0, dolly: 1, parX: 0, parY: 0, ringLevel: 1, lightMix: 0, keyLevel: 1 });
+  Object.assign(st.state, { frameX: 0, frameY: 0, spin: 0, statueSpin: 0, arc: 0, dolly: 1, parX: 0, parY: 0, ringLevel: 1, lightMix: 0, keyLevel: 1, daylight: 0 });
+  Object.assign(st.turn, { drag: 0, vel: 0, follow: 0, hover: 0, hoverTarget: 0 });
   st.floor.pool.visible = false; // the additive light pool cannot be stored in a transparent PNG
   open(URL.createObjectURL(await st.capture()));
   ```
@@ -98,7 +101,7 @@ To add a section, copy one, give it `data-scene` plus those three attributes, an
    Drop `--simplify-ratio` / `--simplify-error` if the model is already light. Draco-compressed files also load, because the Draco decoder comes from jsDelivr on demand.
 3. Overwrite `assets/models/statue.glb`.
 
-Framing is automatic. The statue is centred on its plinth footprint and scaled to a fixed height. The camera distance and field of view are then solved so the statue's bounding sphere always fits inside the ring's opening, at every point of the scroll, so the ring never crosses the statue.
+Framing is automatic. The statue is centred on its plinth footprint and scaled to a fixed height. It turns about the vertical axis through that footprint, so its bounding sphere is centred on that axis, which makes it hold at any turn. The camera distance and field of view are then solved so that sphere always fits inside the ring's opening, at every point of the scroll and every turn, so the ring never crosses the statue.
 
 The material is forced to metalness 0 and roughness 0.45, while the model's own colour and normal maps are kept. The ring's stone tint is taken from the statue's average texture colour.
 
@@ -114,14 +117,33 @@ The default is `Math.PI`, which shows the figure from behind with the mask raise
 
 - **Intro** (about 2.5 s): darkness, then the spotlight, the ring, the name letter by letter, the tagline and the scroll cue. Any key, click, wheel or touch skips it.
 - **Scroll**:
-  - the ring turns once about the viewing axis over the whole page (scrub 1.2);
+  - the ring turns four times about its own centre (the viewing axis) over the whole page, steadily (scrub 1.2). Change `RING_TURNS` in `src/sections/scenes.js`;
+  - the statue makes one full turn of its own the other way, eased and lagging further behind (scrub 2.4), so the two never move in step;
   - the camera arcs 22° and moves closer;
   - the light moves warm, cool, warm by section;
-  - the statue steps left and right so the text sits in empty space;
-  - the statue itself never spins.
-- **Pointer**: a ±3° camera parallax with heavy damping, for mouse only.
-- **Constellations**: drag the star cursor through the star field to link up to 12 stars. Rest for 1.2 s and the constellation pulses, then fades. The browser is never stopped from scrolling vertically on touch; only horizontal drags draw.
-- **Nav**: hides on scroll down and returns on scroll up. Anchor links glide with ScrollToPlugin and move keyboard focus to the section.
+  - the statue steps left and right so the text sits in empty space.
+- **Statue and cursor** (mouse):
+  - the camera follows the cursor by ±3° and the statue turns up to 14° toward it, both heavily damped;
+  - over the statue, the star cursor grows, shows "Drag" and the key light leans in;
+  - dragging sideways turns the statue (420 px is half a turn); let go while moving and it coasts to a stop.
+  On touch, a sideways drag that starts on the statue turns it; vertical drags still scroll the page.
+- **Stars**: about 0.6 stars per 1,000 px² (686 on a 1482 × 775 screen) over a static dust layer. Stars within 150 px of the cursor glow, and the glow fades out behind it as it moves on. Moving the cursor through the field also links up to 12 stars into a constellation; rest for 1.2 s and it pulses, then fades. Density, glow radius and trail length are the constants at the top of `src/constellation/Constellation.js`.
+- **Ring light**: the ring is about 1.5 times as bright as before in the hero and about 2.5 times as bright during the acts, where it now eases back only slightly. Each text column sits on a feathered panel of the page colour, so copy stays legible where the ring passes behind it.
+- **Light / dark**: the sun and moon button in the top bar. Dark (the theatre) is the default. Light mode ("house lights up") uses the design system's standard register; the 3D stage adds an even daylight fill and pale stone shading on the ring. The choice is remembered in the browser (`localStorage`, key `dc-theme`) and applied before first paint, so there is no flash. The loader and the curtain-call footer stay dark in both.
+- **Piano music**: the bars button in the top bar. It is off by default and starts only when clicked, fades in and out, plays three pieces in turn and loops, pauses while the tab is hidden, and shows the current piece in the button's tooltip and the system media controls.
+- **Nav**: hides on scroll down and returns on scroll up. Anchor links glide with ScrollToPlugin and move keyboard focus to the section. Below 1000 px the links move into the Menu sheet; below 480 px the sheet's Support link stands in for the Sponsor button.
+
+## Music
+
+The recordings are public domain or CC0, from Musopen, streamed from Wikimedia Commons (Ogg Vorbis, or Wikimedia's MP3 copy where Ogg is not supported, such as Safari). Nothing is downloaded until a visitor presses play.
+
+| Piece | Performer | Licence |
+|---|---|---|
+| Satie, Gymnopédie No. 1 | Robin Alciatore | Public domain |
+| Beethoven, Sonata Pathétique, II. Adagio cantabile | Paul Pitman | CC0 |
+| Chopin, Nocturne in F major, Op. 15 No. 1 | Luke Faulkner | CC0 |
+
+To change the list, edit `TRACKS` in `src/ui/music.js` (each `path` is the file's path under `upload.wikimedia.org/wikipedia/commons/`), and update the credit line in the footer of `index.html`. To host the files yourself instead, put them in `assets/audio/` and change `src()` in the same file to point there.
 
 ## Performance and fallbacks
 
@@ -129,12 +151,12 @@ The default is `Math.PI`, which shows the figure from behind with the mask raise
 - **Rendering**:
   - DPR is capped at 2;
   - a frame is rendered only when something changed;
-  - the shadow map is drawn once;
+  - the shadow map is redrawn only when the statue turns;
   - both canvases pause when the tab is hidden or the footer covers the stage.
 - **Static fallback**: no WebGL, a software renderer, Save-Data, 2 cores or fewer, or 2 GB of memory or less all get the still picture, with the star field kept.
 - **Reduced motion**:
   - no intro and no parallax;
-  - the ring does not turn;
+  - the ring and the statue do not turn with the scroll, the statue does not lean toward the cursor, and a drag stops when the hand does (no coasting);
   - scene changes happen in steps instead of tweens;
   - text appears without movement;
   - constellations appear without the draw-on animation.
@@ -152,7 +174,9 @@ These were added because the system has no dark-stage page. They are built from 
 - `--topbar-h` (56px, from the TopBar spec), `--stage-gutter` (space-6 on small screens, space-8 from 768px), and a z-index scale for the stage layers.
 - The gold (inverse) button's hover and press states use gold-300 and gold-600. Links on dark grounds are gold-500, turning gold-300 on hover.
 - A secondary button for dark grounds: a plum-100 outline whose hover fills ink and turns the edge gold.
-- The mobile text scrim: a fade from transparent to plum-900, so text never sits on the statue.
+- The mobile text scrim: a fade from transparent to the page colour, so text never sits on the statue. On wider screens, a feathered panel of the page colour (84%) behind each text column does the same job for the ring.
+- **Theme roles** (`--bg`, `--fg`, `--fg-strong`, `--fg-muted`, `--accent`, `--rule-color`, `--card-bg`, `--btn-bg`, `--star` and so on): components read these, never raw palette values. Dark maps them to the inverted, on-stage register used before. Light maps them to the system's standard register: plum-100 page, white cards, plum-800 headings, slate-700 text, plum-500 accents and links, an ink (plum-800) primary button, and the gold rule kept. Two choices are new: muted labels use plum-600 rather than slate-500, which falls below 4.5:1 on plum-100, and the featured gold tier card uses gold-100. `.theme-ink` pins a block to the dark register.
+- Icon buttons in the top bar (44 px, sharp corners, hairline border on hover), the music bars animation, and the star cursor's "Drag" hint in the eyebrow style. In light mode the gold nav mark is deepened with a filter so it holds on plum-100.
 - The design system says "no parallax or looping motion". The brief overrides that for the stage, so the overrides are confined to the canvas, the scroll cue and the loader.
 
 ## Content notes

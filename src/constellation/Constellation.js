@@ -1,11 +1,20 @@
-// Constellation cursor trail: a field of faint stars behind the stage. Moving the cursor (or a
-// horizontal finger drag) captures the stars it passes, in order, and joins them with lines that
-// draw themselves on. Resting for ~1.2 s completes the constellation: a soft pulse, then a slow fade.
+// Constellation cursor trail: a dense field of stars behind the stage. Stars near the cursor glow,
+// and the glow lingers behind it as it moves on. Moving the cursor (or a horizontal finger drag)
+// also captures the stars it passes, in order, and joins them with lines that draw themselves on.
+// Resting for ~1.2 s completes the constellation: a soft pulse, then a slow fade.
+//
+// Two layers: twinkling stars (drawn every frame) over a static dust of faint points (drawn once per
+// resize or theme change, then copied).
 
 import { SpatialGrid } from './SpatialGrid.js';
 
-const CAPTURE_RADIUS = 60; // px from the cursor path
-const MIN_GAP = 30; // px between consecutive captured stars
+const STAR_CELL = 34; // jittered-grid cell for the twinkling stars (px)
+const STAR_KEEP = 0.66; // share of cells that hold a star
+const DUST_PER_MPX = 1700; // static dust points per million px²
+const GLOW_RADIUS = 150; // px around the cursor in which stars glow
+const GLOW_DECAY = 2.2; // 1/s: how long the glow lingers behind the cursor
+const CAPTURE_RADIUS = 38; // px from the cursor path
+const MIN_GAP = 46; // px between consecutive captured stars
 const MAX_STARS = 12;
 const REST_MS = 1200;
 const DRAW_MS = 250;
@@ -26,9 +35,9 @@ function mulberry32(seed) {
   };
 }
 
-function parseColor(css) {
-  const m = css.trim().match(/^#([0-9a-f]{6})$/i);
-  const n = m ? parseInt(m[1], 16) : 0xebd88c;
+function parseColor(css, fallback = 0xebd88c) {
+  const m = String(css).trim().match(/^#([0-9a-f]{6})$/i);
+  const n = m ? parseInt(m[1], 16) : fallback;
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 }
 
@@ -36,30 +45,31 @@ export class ConstellationField {
   /**
    * @param {object} o
    * @param {HTMLCanvasElement} o.canvas
-   * @param {string} o.color             hex colour from the design system accent
+   * @param {object} o.theme             { color, glow, additive }: hex colours from the design tokens;
+   *                                     additive glow on dark grounds, painted glow on light ones
    * @param {boolean} o.reducedMotion    lines appear without drawing on; no twinkle
    * @param {(x:number,y:number)=>boolean} [o.covers]  true where the statue hides the sky
    * @param {string} [o.maskSelector]    text blocks the sky must stay clear of
    */
-  constructor({ canvas, color, reducedMotion, covers = () => false, maskSelector = '[data-mask], .topbar' }) {
+  constructor({ canvas, theme, reducedMotion, covers = () => false, maskSelector = '[data-mask], .topbar' }) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
-    this.rgb = parseColor(color);
     this.reducedMotion = reducedMotion;
     this.covers = covers;
     this.maskSelector = maskSelector;
-    this.grid = new SpatialGrid(CAPTURE_RADIUS);
+    this.grid = new SpatialGrid(64);
     this.stars = [];
     this.constellations = [];
     this.active = null;
     this.last = null; // last pointer sample { x, y }
     this.lastMove = 0;
-    this.pointer = null; // current pointer position for proximity glow
+    this.pointer = null; // current pointer position for the glow
     this.touch = null;
     this.maskRects = [];
     this.running = false;
+    this.suspended = false; // true while the statue is being turned: no new constellations
     this.raf = 0;
-    this.glow = this._makeGlow();
+    this.dust = document.createElement('canvas');
 
     this._frame = this._frame.bind(this);
     this._onMove = this._onMove.bind(this);
@@ -67,6 +77,7 @@ export class ConstellationField {
     this._onUp = this._onUp.bind(this);
     this._onLeave = this._onLeave.bind(this);
     this._resize = this._resize.bind(this);
+    this.setTheme(theme);
     window.addEventListener('pointermove', this._onMove, { passive: true });
     window.addEventListener('pointerdown', this._onDown, { passive: true });
     window.addEventListener('pointerup', this._onUp, { passive: true });
@@ -77,15 +88,25 @@ export class ConstellationField {
     this._resize();
   }
 
+  /** Colours for the current theme. */
+  setTheme({ color, glow = color, additive = true }) {
+    this.rgb = parseColor(color);
+    this.glowRgb = parseColor(glow);
+    this.additive = additive;
+    this.glow = this._makeGlow();
+    if (this.w) this._paintDust();
+  }
+
   _makeGlow() {
-    const s = 32;
+    const s = 64;
     const c = document.createElement('canvas');
     c.width = c.height = s;
     const g = c.getContext('2d');
-    const [r, gg, b] = this.rgb;
+    const [r, gg, b] = this.glowRgb;
     const grad = g.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2);
-    grad.addColorStop(0, `rgba(${r},${gg},${b},0.9)`);
-    grad.addColorStop(0.25, `rgba(${r},${gg},${b},0.32)`);
+    grad.addColorStop(0, `rgba(${r},${gg},${b},1)`);
+    grad.addColorStop(0.18, `rgba(${r},${gg},${b},0.5)`);
+    grad.addColorStop(0.45, `rgba(${r},${gg},${b},0.14)`);
     grad.addColorStop(1, `rgba(${r},${gg},${b},0)`);
     g.fillStyle = grad;
     g.fillRect(0, 0, s, s);
@@ -101,6 +122,7 @@ export class ConstellationField {
     this.canvas.width = Math.round(w * this.dpr);
     this.canvas.height = Math.round(h * this.dpr);
     this._seed();
+    this._paintDust();
     this.constellations = [];
     this.active = null;
     this.dirty = true;
@@ -109,17 +131,17 @@ export class ConstellationField {
   // jittered grid: evenly spread, never clumped
   _seed() {
     const rand = mulberry32(1914);
-    const cell = 64;
+    const cell = STAR_CELL;
     this.stars = [];
     for (let y = 0; y < this.h; y += cell) {
       for (let x = 0; x < this.w; x += cell) {
-        if (rand() > 0.56) continue;
-        const bright = rand() < 0.08;
+        if (rand() > STAR_KEEP) continue;
+        const bright = rand() < 0.07;
         this.stars.push({
-          x: x + 6 + rand() * (cell - 12),
-          y: y + 6 + rand() * (cell - 12),
-          r: bright ? 1.3 + rand() * 0.4 : 0.55 + rand() * 0.6,
-          base: bright ? 0.55 + rand() * 0.2 : 0.16 + rand() * 0.3,
+          x: x + 4 + rand() * (cell - 8),
+          y: y + 4 + rand() * (cell - 8),
+          r: bright ? 1.25 + rand() * 0.45 : 0.5 + rand() * 0.55,
+          base: bright ? 0.55 + rand() * 0.2 : 0.14 + rand() * 0.3,
           speed: 0.4 + rand() * 1.1,
           phase: rand() * Math.PI * 2,
           boost: 0,
@@ -130,11 +152,30 @@ export class ConstellationField {
     this.grid.build(this.stars, this.w, this.h);
   }
 
+  // faint static points between the stars: depth for free (one copy per frame)
+  _paintDust() {
+    const rand = mulberry32(1606);
+    const d = this.dust;
+    d.width = Math.round(this.w * this.dpr);
+    d.height = Math.round(this.h * this.dpr);
+    const ctx = d.getContext('2d');
+    ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+    const [r, g, b] = this.rgb;
+    const n = Math.round((this.w * this.h * DUST_PER_MPX) / 1e6);
+    for (let i = 0; i < n; i++) {
+      ctx.fillStyle = `rgba(${r},${g},${b},${(0.06 + rand() * 0.16).toFixed(3)})`;
+      const s = 0.6 + rand() * 0.7;
+      ctx.fillRect(rand() * this.w, rand() * this.h, s, s);
+    }
+  }
+
   // ---- input ----
 
   _onDown(e) {
     if (e.pointerType !== 'touch') return;
-    this.touch = { id: e.pointerId, x0: e.clientX, y0: e.clientY, mode: null };
+    // a drag that starts on the statue turns the statue instead (src/scene/interaction.js)
+    const onStatue = this.covers(e.clientX, e.clientY);
+    this.touch = { id: e.pointerId, x0: e.clientX, y0: e.clientY, mode: onStatue ? 'statue' : null };
     this.last = null;
   }
 
@@ -176,7 +217,7 @@ export class ConstellationField {
     this.lastMove = now;
     const prev = this.last;
     this.last = { x, y };
-    if (!prev) return;
+    if (!prev || this.suspended) return;
     const dx = x - prev.x, dy = y - prev.y;
     const len2 = dx * dx + dy * dy;
     if (len2 < 0.5) return;
@@ -285,17 +326,20 @@ export class ConstellationField {
     }
     this.constellations = this.constellations.filter((c) => c.alpha > 0.001 || c.state === 'active');
 
-    // proximity brighten and capture glow decay
+    // glow around the cursor; it decays, so it trails behind a moving cursor
     const p = this.pointer;
-    const decay = Math.exp(-dt * 3);
+    const decay = Math.exp(-dt * GLOW_DECAY);
     for (const s of this.stars) {
       s.boost *= decay;
       s.lit = 0;
     }
     if (p) {
-      this.grid.query(p.x - CAPTURE_RADIUS, p.y - CAPTURE_RADIUS, p.x + CAPTURE_RADIUS, p.y + CAPTURE_RADIUS, (s) => {
+      const R = GLOW_RADIUS;
+      this.grid.query(p.x - R, p.y - R, p.x + R, p.y + R, (s) => {
         const d = Math.hypot(s.x - p.x, s.y - p.y);
-        if (d < CAPTURE_RADIUS) s.boost = Math.max(s.boost, 1 - d / CAPTURE_RADIUS);
+        if (d >= R) return;
+        const k = 1 - d / R;
+        s.boost = Math.max(s.boost, k * k * (3 - 2 * k)); // smooth falloff
       });
     }
     for (const c of this.constellations) for (const s of c.stars) s.lit = Math.max(s.lit, Math.min(1, c.alpha));
@@ -306,25 +350,36 @@ export class ConstellationField {
   _draw(now) {
     const ctx = this.ctx;
     const [r, g, b] = this.rgb;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    ctx.globalAlpha = 1;
+    ctx.drawImage(this.dust, 0, 0);
     ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
-    ctx.clearRect(0, 0, this.w, this.h);
 
     // stars
     const t = now / 1000;
+    const glowing = [];
     ctx.fillStyle = `rgb(${r},${g},${b})`;
     for (const s of this.stars) {
       const tw = this.reducedMotion ? 1 : 0.72 + 0.28 * Math.sin(t * s.speed + s.phase);
-      const a = Math.min(1, s.base * tw + s.boost * 0.5 + s.lit * 0.55);
+      const a = Math.min(1, s.base * tw + s.boost * 0.85 + s.lit * 0.55);
       ctx.globalAlpha = a;
       ctx.beginPath();
-      ctx.arc(s.x, s.y, s.r + s.lit * 0.5, 0, Math.PI * 2);
+      ctx.arc(s.x, s.y, s.r * (1 + 0.9 * s.boost) + s.lit * 0.5, 0, Math.PI * 2);
       ctx.fill();
-      const glow = Math.max(s.boost * 0.6, s.lit * 0.75);
-      if (glow > 0.04) {
-        const size = 16 + s.r * 8;
-        ctx.globalAlpha = glow * 0.5;
+      if (s.boost > 0.03 || s.lit > 0.03) glowing.push(s);
+    }
+
+    // glow: one pass, additive on the dark stage so overlapping halos bloom
+    if (glowing.length) {
+      ctx.globalCompositeOperation = this.additive ? 'lighter' : 'source-over';
+      for (const s of glowing) {
+        const k = Math.max(s.boost, s.lit * 0.8);
+        const size = (14 + s.r * 12) * (0.7 + 1.1 * k);
+        ctx.globalAlpha = Math.min(1, k * (this.additive ? 0.9 : 0.55));
         ctx.drawImage(this.glow, s.x - size / 2, s.y - size / 2, size, size);
       }
+      ctx.globalCompositeOperation = 'source-over';
     }
 
     // lines
@@ -336,7 +391,7 @@ export class ConstellationField {
         const raw = this.reducedMotion ? 1 : Math.max(0, Math.min(1, (now - seg.t0) / DRAW_MS));
         if (raw <= 0) continue;
         const k = easeOutCubic(raw);
-        ctx.globalAlpha = Math.min(1, 0.5 * c.alpha);
+        ctx.globalAlpha = Math.min(1, 0.55 * c.alpha);
         ctx.beginPath();
         ctx.moveTo(seg.a.x, seg.a.y);
         ctx.lineTo(seg.a.x + (seg.b.x - seg.a.x) * k, seg.a.y + (seg.b.y - seg.a.y) * k);
@@ -370,6 +425,8 @@ export class ConstellationField {
     window.removeEventListener('pointerup', this._onUp);
     window.removeEventListener('pointercancel', this._onUp);
     document.documentElement.removeEventListener('pointerleave', this._onLeave);
+    this.ctx.setTransform(1, 0, 0, 1, 0, 0);
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.dust.width = this.dust.height = 0;
   }
 }

@@ -1,5 +1,5 @@
 /* Design system primitives (Button, Tag, Eyebrow, Rule, Card, SectionHeading, Stat, Quote, TopBar,
-   Footer), in their on-dark variants. Sharp corners, gold rule, plum-tinted shadows. */
+   Footer), coloured through the theme roles. Sharp corners, gold rule, plum-tinted shadows. */
 
 /* ---- Eyebrow ---- */
 .eyebrow {
@@ -9,7 +9,7 @@
   font-size: var(--size-micro);
   letter-spacing: var(--ls-eyebrow);
   text-transform: uppercase;
-  color: var(--gold-500);
+  color: var(--accent);
   margin: 0;
 }
 
@@ -18,7 +18,7 @@
   display: block;
   width: 64px;
   height: var(--rule-thick);
-  background: var(--gold-500);
+  background: var(--rule-color);
   border: 0;
   margin: var(--space-4) 0 var(--space-5);
   transform-origin: left center;
@@ -29,10 +29,10 @@
 .section-heading h2 {
   font-size: var(--size-display-m);
   line-height: var(--lh-title);
-  color: var(--text-inverse);
+  color: var(--fg-strong);
 }
 .section-heading .rule { margin: var(--space-1) 0 0; }
-.lead { font-size: var(--size-body-l); color: var(--plum-100); }
+.lead { font-size: var(--size-body-l); color: var(--fg-strong); }
 
 /* ---- Button ---- */
 .btn {
@@ -56,17 +56,17 @@
 }
 .btn--sm { font-size: 12px; padding: 8px 14px; min-height: 36px; }
 .btn--lg { font-size: 15px; padding: 16px 30px; min-height: 52px; }
-/* Inverse (gold on plum): the primary action on dark grounds */
-.btn--inverse { background: var(--gold-500); color: var(--plum-900); box-shadow: var(--shadow-sm); }
-.btn--inverse:hover { background: var(--gold-300); color: var(--plum-900); text-decoration: none; }
-.btn--inverse:active { background: var(--gold-600); box-shadow: var(--shadow-none); }
-/* Secondary on dark: outline in plum-100; hover fills ink and thickens to gold */
-.btn--secondary { background: transparent; color: var(--plum-100); border-color: var(--plum-100); }
-.btn--secondary:hover { background: var(--plum-800); color: var(--plum-100); border-color: var(--gold-500); box-shadow: inset 0 0 0 1px var(--gold-500); }
-.btn--secondary:active { background: var(--plum-700); }
+/* Primary action: gold on plum on the dark stage (inverse), ink on the light page (primary) */
+.btn--inverse { background: var(--btn-bg); color: var(--btn-fg); box-shadow: var(--shadow-sm); }
+.btn--inverse:hover { background: var(--btn-bg-hover); color: var(--btn-fg); text-decoration: none; }
+.btn--inverse:active { background: var(--btn-bg-active); box-shadow: var(--shadow-none); }
+/* Secondary: outline; hover fills with the card ground and the edge turns to the accent */
+.btn--secondary { background: transparent; color: var(--fg-strong); border-color: var(--fg-strong); }
+.btn--secondary:hover { background: var(--card-bg); color: var(--fg-strong); border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.btn--secondary:active { background: var(--card-feature-bg); }
 /* Ghost: hover underlines */
-.btn--ghost { background: transparent; color: var(--gold-500); padding-inline: 6px; }
-.btn--ghost:hover { color: var(--gold-300); text-decoration: underline 1px; text-underline-offset: 4px; }
+.btn--ghost { background: transparent; color: var(--accent); padding-inline: 6px; }
+.btn--ghost:hover { color: var(--accent-hover); text-decoration: underline 1px; text-underline-offset: 4px; }
 .btn:disabled, .btn[aria-disabled="true"] { opacity: .45; cursor: not-allowed; box-shadow: none; }
 
 /* ---- Tag ---- */
@@ -80,17 +80,17 @@
   display: inline-block;
   line-height: 1.1;
   border-radius: var(--radius-none);
-  background: rgba(235, 216, 140, .16);
-  color: var(--gold-500);
+  background: var(--tag-bg);
+  color: var(--accent);
 }
-.tag--outline { background: transparent; color: var(--plum-100); box-shadow: inset 0 0 0 1px var(--border-on-dark); }
+.tag--outline { background: transparent; color: var(--fg-strong); box-shadow: inset 0 0 0 1px var(--line); }
 
 /* ---- Card (ink) with the gold rule that grows on hover ---- */
 .card {
   position: relative;
-  background: var(--surface-ink);
-  color: var(--plum-200);
-  border: var(--border-width) solid var(--border-on-dark);
+  background: var(--card-bg);
+  color: var(--fg);
+  border: var(--border-width) solid var(--line);
   border-radius: var(--radius-none);
   padding: var(--space-5);
   box-shadow: var(--shadow-sm);
@@ -102,7 +102,7 @@
   position: absolute;
   left: -1px; right: -1px; top: -1px;
   height: var(--rule-thick);
-  background: var(--gold-500);
+  background: var(--rule-color);
   transform-origin: top;
   transition: transform var(--dur-base) var(--ease-curtain);
 }
@@ -120,7 +120,7 @@
   font-weight: var(--weight-black);
   font-size: 44px;
   line-height: 1;
-  color: var(--gold-500);
+  color: var(--accent);
   font-variant-numeric: tabular-nums;
   margin: 0;
 }
@@ -130,17 +130,17 @@
   font-weight: var(--weight-bold);
   letter-spacing: var(--ls-eyebrow);
   text-transform: uppercase;
-  color: var(--plum-300);
+  color: var(--fg-muted);
   margin: 0;
 }
 
 /* ---- Quote ---- */
-.quote { margin: 0; border-left: var(--rule-thick) solid var(--gold-500); padding-left: var(--space-5); }
+.quote { margin: 0; border-left: var(--rule-thick) solid var(--rule-color); padding-left: var(--space-5); }
 .quote p {
   font-family: var(--font-display);
   font-size: var(--size-heading);
   line-height: 1.35;
-  color: var(--plum-100);
+  color: var(--fg-strong);
   margin: 0;
   max-width: 24em;
 }
@@ -150,7 +150,7 @@
   font-weight: var(--weight-bold);
   letter-spacing: var(--ls-eyebrow);
   text-transform: uppercase;
-  color: var(--gold-500);
+  color: var(--accent);
   margin-top: var(--space-3);
 }
 
@@ -167,20 +167,22 @@
   transition: transform var(--dur-slow) var(--ease-curtain), background-color var(--dur-base) var(--ease-curtain);
 }
 /* Blur is used in exactly one place: the top bar over scrolled content (plum 800 at 88%, 10px). */
-.topbar.is-scrolled { background: rgba(64, 20, 42, .88); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.topbar.is-scrolled { background: var(--bar-bg); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
 .topbar.is-hidden { transform: translateY(-100%); }
 .topbar__brand {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  color: var(--plum-100);
+  color: var(--fg-strong);
   text-decoration: none;
   margin-right: auto;
   min-height: 44px;
 }
-.topbar__brand:hover { color: var(--plum-100); text-decoration: none; }
+.topbar__brand:hover { color: var(--fg-strong); text-decoration: none; }
 .topbar__mark { width: 32px; height: 32px; flex: none; }
 .topbar__mark img, .topbar__mark svg { width: 100%; height: 100%; }
+/* the gold mark, deepened toward gold-700 so it holds on the light page */
+[data-theme="light"] .topbar__mark { filter: brightness(.68) saturate(1.3); }
 .topbar__word { font-family: var(--font-display); font-size: 17px; line-height: 1; }
 .topbar__links { display: flex; gap: var(--space-5); list-style: none; }
 .topbar__links a {
@@ -189,18 +191,49 @@
   font-weight: var(--weight-bold);
   letter-spacing: .2em;
   text-transform: uppercase;
-  color: var(--plum-200);
+  color: var(--fg);
   text-decoration: none;
   border-bottom: var(--rule-thick) solid transparent;
   padding: 14px 0 4px;
   display: inline-block;
 }
-.topbar__links a:hover, .topbar__links a[aria-current="true"] { color: var(--gold-500); border-bottom-color: var(--gold-500); }
+.topbar__links a:hover, .topbar__links a[aria-current="true"] { color: var(--accent); border-bottom-color: var(--rule-color); }
+
+/* Icon controls: piano music and the theme */
+.topbar__tools { display: flex; align-items: center; }
+.icon-btn {
+  width: 44px; height: 44px;
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+  background: none;
+  border: var(--border-width) solid transparent;
+  border-radius: var(--radius-none);
+  color: var(--fg-strong);
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-curtain), border-color var(--dur-fast) var(--ease-curtain);
+}
+.icon-btn:hover { color: var(--accent); border-color: var(--line); }
+.icon-btn svg { width: 20px; height: 20px; display: block; }
+/* music: four bars, resting low; they play while the music does */
+.music-toggle .bar { fill: currentColor; transform-box: fill-box; transform-origin: 50% 100%; transform: scaleY(.55); transition: transform var(--dur-slow) var(--ease-curtain); }
+.music-toggle[aria-pressed="true"] { color: var(--accent); }
+.music-toggle[aria-pressed="true"] .bar { transform: scaleY(.8); }
+.music-toggle.is-playing .bar { animation: music-bar 1.1s var(--ease-in-out) infinite alternate; }
+.music-toggle.is-playing .bar:nth-child(2) { animation-duration: .8s; animation-delay: -.3s; }
+.music-toggle.is-playing .bar:nth-child(3) { animation-duration: 1.3s; animation-delay: -.6s; }
+.music-toggle.is-playing .bar:nth-child(4) { animation-duration: .95s; animation-delay: -.15s; }
+.music-toggle.is-loading .bar { animation: music-wait 1.2s var(--ease-in-out) infinite alternate; }
+@keyframes music-bar { from { transform: scaleY(.3); } to { transform: scaleY(1); } }
+@keyframes music-wait { from { opacity: .35; } to { opacity: 1; } }
+/* theme: the sun turns the house lights up; the moon brings them down */
+.icon-btn .theme-toggle__moon, [data-theme="light"] .icon-btn .theme-toggle__sun { display: none; }
+[data-theme="light"] .icon-btn .theme-toggle__moon { display: block; }
 .topbar__menu {
   display: none;
   background: none;
   border: 0;
-  color: var(--plum-100);
+  color: var(--fg-strong);
   font-family: var(--font-ui);
   font-weight: var(--weight-bold);
   font-size: 12px;
@@ -212,16 +245,16 @@
 }
 .topbar__sheet { display: none; }
 
-@media (max-width: 860px) {
-  .topbar__links { display: none; }
+@media (max-width: 1000px) {
+  .topbar nav { display: none; }
   .topbar__menu { display: inline-flex; align-items: center; }
   .topbar__word { font-size: 15px; }
   .topbar__sheet {
     position: fixed;
     top: var(--topbar-h);
     left: 0; right: 0;
-    background: var(--plum-800);
-    border-bottom: var(--rule-thick) solid var(--gold-500);
+    background: var(--sheet-bg);
+    border-bottom: var(--rule-thick) solid var(--rule-color);
     padding: var(--space-4) var(--stage-gutter) var(--space-5);
     z-index: var(--z-topbar);
   }
@@ -235,10 +268,14 @@
     font-weight: var(--weight-bold);
     letter-spacing: .2em;
     text-transform: uppercase;
-    color: var(--plum-100);
+    color: var(--fg-strong);
     text-decoration: none;
   }
 }
-@media (max-width: 420px) {
+@media (max-width: 640px) {
   .topbar__word { display: none; }
+}
+/* phones: the sheet's Support link stands in for the sponsor button */
+@media (max-width: 480px) {
+  .topbar > .btn { display: none; }
 }
