@@ -118,18 +118,19 @@ The default is `Math.PI`, which shows the figure from behind with the mask raise
 - **Intro** (about 2.5 s): darkness, then the spotlight, the ring, the name letter by letter, the tagline and the scroll cue. Any key, click, wheel or touch skips it.
 - **Scroll**:
   - the ring turns four times about its own centre (the viewing axis) over the whole page, steadily (scrub 1.2). Change `RING_TURNS` in `src/sections/scenes.js`;
-  - the statue makes one full turn of its own the other way, eased and lagging further behind (scrub 2.4), so the two never move in step;
+  - the statue makes two full turns of its own the other way, eased and lagging further behind (scrub 2.4), so the two never move in step. Change `STATUE_TURNS` in the same file;
   - the camera arcs 22° and moves closer;
   - the light moves warm, cool, warm by section;
   - the statue steps left and right so the text sits in empty space.
 - **Statue and cursor** (mouse):
+  - the star cursor is a native cursor image (an outlined SVG set in `layout.css`), so it has no lag and clicks land exactly at its centre. It turns 45° over links and controls;
   - the camera follows the cursor by ±3° and the statue turns up to 14° toward it, both heavily damped;
   - over the statue, the star cursor grows, shows "Drag" and the key light leans in;
   - dragging sideways turns the statue (420 px is half a turn); let go while moving and it coasts to a stop.
   On touch, a sideways drag that starts on the statue turns it; vertical drags still scroll the page.
 - **Stars**: about 0.6 stars per 1,000 px² (686 on a 1482 × 775 screen) over a static dust layer. Stars within 150 px of the cursor glow, and the glow fades out behind it as it moves on. Moving the cursor through the field also links up to 12 stars into a constellation; rest for 1.2 s and it pulses, then fades. Density, glow radius and trail length are the constants at the top of `src/constellation/Constellation.js`.
 - **Ring light**: the ring is about 1.5 times as bright as before in the hero and about 2.5 times as bright during the acts, where it now eases back only slightly. Each text column sits on a feathered panel of the page colour, so copy stays legible where the ring passes behind it.
-- **Light / dark**: the sun and moon button in the top bar. Dark (the theatre) is the default. Light mode ("house lights up") uses the design system's standard register; the 3D stage adds an even daylight fill and pale stone shading on the ring. The choice is remembered in the browser (`localStorage`, key `dc-theme`) and applied before first paint, so there is no flash. The loader and the curtain-call footer stay dark in both.
+- **Light / dark**: the sun and moon button in the top bar. Dark (the theatre) is the default. Light mode ("house lights up") uses the design system's standard register; the 3D stage adds an even daylight fill and pale stone shading on the ring. The choice is remembered in the browser (`localStorage`, key `dc-theme`) and applied before first paint, so there is no flash. The loader stays dark in both; the curtain-call footer follows the theme (plum-50 in light mode).
 - **Piano music**: the bars button in the top bar. It is off by default and starts only when clicked, fades in and out, plays three pieces in turn and loops, pauses while the tab is hidden, and shows the current piece in the button's tooltip and the system media controls.
 - **Nav**: hides on scroll down and returns on scroll up. Anchor links glide with ScrollToPlugin and move keyboard focus to the section. Below 1000 px the links move into the Menu sheet; below 480 px the sheet's Support link stands in for the Sponsor button.
 

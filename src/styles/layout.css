@@ -30,27 +30,40 @@
 .loader__light { width: 160px; height: 160px; }
 .loader__status { font-variant-numeric: tabular-nums; }
 
-/* ---- Custom cursor (desktop, fine pointers only) ---- */
+/* ---- Cursor (desktop, fine pointers only) ----
+   The star is a native cursor image, so the system draws it: no lag, and its hotspot (the star's
+   centre) is exactly where a click lands. Outlined so it reads on the statue and on light grounds.
+   It turns 45 degrees over links and controls, grows over the statue, and turns while dragging it. */
+:root {
+  --cursor-star: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='-12 -12 24 24'%3E%3Cpath d='M0-10C1-2 2-1 10 0 2 1 1 2 0 10-1 2-2 1-10 0-2-1-1-2 0-10Z' fill='%23ebd88c' stroke='%232a0d1c' stroke-width='1.4' stroke-linejoin='round'/%3E%3C/svg%3E") 12 12, crosshair;
+  --cursor-star-link: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='-12 -12 24 24'%3E%3Cpath d='M0-10C1-2 2-1 10 0 2 1 1 2 0 10-1 2-2 1-10 0-2-1-1-2 0-10Z' fill='%23ebd88c' stroke='%232a0d1c' stroke-width='1.4' stroke-linejoin='round' transform='rotate(45)'/%3E%3C/svg%3E") 12 12, pointer;
+  --cursor-star-grab: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='-12 -12 24 24'%3E%3Cpath d='M0-10C1-2 2-1 10 0 2 1 1 2 0 10-1 2-2 1-10 0-2-1-1-2 0-10Z' fill='%23ebd88c' stroke='%232a0d1c' stroke-width='1.4' stroke-linejoin='round'/%3E%3C/svg%3E") 16 16, grab;
+  --cursor-star-grabbing: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='-12 -12 24 24'%3E%3Cpath d='M0-10C1-2 2-1 10 0 2 1 1 2 0 10-1 2-2 1-10 0-2-1-1-2 0-10Z' fill='%23ebd88c' stroke='%232a0d1c' stroke-width='1.4' stroke-linejoin='round' transform='rotate(45)'/%3E%3C/svg%3E") 14 14, grabbing;
+}
+:root[data-theme="light"] {
+  --cursor-star: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='-12 -12 24 24'%3E%3Cpath d='M0-10C1-2 2-1 10 0 2 1 1 2 0 10-1 2-2 1-10 0-2-1-1-2 0-10Z' fill='%236d2751' stroke='%23faf3f4' stroke-width='1.4' stroke-linejoin='round'/%3E%3C/svg%3E") 12 12, crosshair;
+  --cursor-star-link: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='-12 -12 24 24'%3E%3Cpath d='M0-10C1-2 2-1 10 0 2 1 1 2 0 10-1 2-2 1-10 0-2-1-1-2 0-10Z' fill='%236d2751' stroke='%23faf3f4' stroke-width='1.4' stroke-linejoin='round' transform='rotate(45)'/%3E%3C/svg%3E") 12 12, pointer;
+  --cursor-star-grab: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='-12 -12 24 24'%3E%3Cpath d='M0-10C1-2 2-1 10 0 2 1 1 2 0 10-1 2-2 1-10 0-2-1-1-2 0-10Z' fill='%236d2751' stroke='%23faf3f4' stroke-width='1.4' stroke-linejoin='round'/%3E%3C/svg%3E") 16 16, grab;
+  --cursor-star-grabbing: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='-12 -12 24 24'%3E%3Cpath d='M0-10C1-2 2-1 10 0 2 1 1 2 0 10-1 2-2 1-10 0-2-1-1-2 0-10Z' fill='%236d2751' stroke='%23faf3f4' stroke-width='1.4' stroke-linejoin='round' transform='rotate(45)'/%3E%3C/svg%3E") 14 14, grabbing;
+}
+.has-cursor { cursor: var(--cursor-star); }
+.has-cursor :is(a, button, label, [role="button"]) { cursor: var(--cursor-star-link); }
+.has-cursor.is-over-statue { cursor: var(--cursor-star-grab); }
+.has-cursor.is-grabbing, .has-cursor.is-grabbing * { cursor: var(--cursor-star-grabbing); }
+/* the "Drag" hint beside the cursor over the statue (positioned directly, no easing) */
 .cursor {
   position: fixed;
   left: 0; top: 0;
   z-index: var(--z-cursor);
-  width: 18px; height: 18px;
-  margin: -9px 0 0 -9px;
   pointer-events: none;
   color: var(--cursor);
   opacity: 0;
   transition: opacity var(--dur-base) var(--ease-curtain);
 }
-.cursor svg { width: 100%; height: 100%; display: block; transition: transform var(--dur-base) var(--ease-curtain); }
 .has-cursor .cursor.is-visible { opacity: 1; }
-.has-cursor .cursor.is-over-link svg { transform: rotate(45deg); }
-/* over the statue: the star grows and offers a drag; while turning it, it turns too */
-.is-over-statue .cursor svg { transform: scale(1.45); }
-.is-grabbing .cursor svg { transform: scale(1.2) rotate(45deg); }
 .cursor__hint {
   position: absolute;
-  left: 22px; top: 50%;
+  left: 22px; top: 0;
   transform: translate(-4px, -50%);
   font-family: var(--font-ui);
   font-size: var(--size-micro);
@@ -63,7 +76,6 @@
 }
 .is-over-statue:not(.is-grabbing) .cursor__hint { opacity: 1; transform: translate(0, -50%); }
 .is-over-statue, .is-grabbing { -webkit-user-select: none; user-select: none; }
-.has-cursor, .has-cursor a, .has-cursor button { cursor: none; }
 @media (hover: none), (pointer: coarse) { .cursor { display: none; } }
 
 /* ---- Content layer ---- */
@@ -166,8 +178,8 @@ main { position: relative; z-index: var(--z-content); }
 .curtain {
   position: relative;
   z-index: var(--z-footer);
-  background: var(--surface-ink-deep);
-  border-top: var(--rule-thick) solid var(--gold-500);
+  background: var(--curtain-bg);
+  border-top: var(--rule-thick) solid var(--rule-color);
   padding: var(--section-y) var(--stage-gutter) var(--space-6);
   overflow: hidden;
 }
@@ -180,6 +192,8 @@ main { position: relative; z-index: var(--z-content); }
   opacity: .1;
   pointer-events: none;
 }
+/* the blush mark vanishes on a light ground: deepened to a plum watermark */
+[data-theme="light"] .curtain__mark { filter: brightness(.38) saturate(1.4); opacity: .08; }
 .curtain__grid {
   position: relative;
   display: grid;
@@ -191,16 +205,16 @@ main { position: relative; z-index: var(--z-content); }
 .curtain__intro { grid-column: 1 / span 6; }
 .curtain__title { font-size: var(--size-display-m); margin-top: var(--space-3); }
 .curtain__contacts { grid-column: 1 / span 7; list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-5); }
-.curtain__contacts .name { font-family: var(--font-display); font-size: var(--size-heading); color: var(--plum-100); display: block; margin-top: var(--space-2); }
+.curtain__contacts .name { font-family: var(--font-display); font-size: var(--size-heading); color: var(--fg-strong); display: block; margin-top: var(--space-2); }
 .curtain__contacts a { font-size: var(--size-body-s); overflow-wrap: anywhere; }
 .curtain__event { grid-column: 8 / span 5; margin: 0; display: grid; gap: var(--space-3); align-content: start; }
-.curtain__event dt { font-family: var(--font-ui); font-size: var(--size-micro); font-weight: var(--weight-bold); letter-spacing: var(--ls-eyebrow); text-transform: uppercase; color: var(--plum-300); }
-.curtain__event dd { margin: 0 0 var(--space-2); color: var(--plum-100); }
+.curtain__event dt { font-family: var(--font-ui); font-size: var(--size-micro); font-weight: var(--weight-bold); letter-spacing: var(--ls-eyebrow); text-transform: uppercase; color: var(--fg-muted); }
+.curtain__event dd { margin: 0 0 var(--space-2); color: var(--fg-strong); }
 .curtain__base {
   position: relative;
   margin-top: var(--space-8);
   padding-top: var(--space-5);
-  border-top: 1px solid var(--border-on-dark);
+  border-top: 1px solid var(--line);
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -209,13 +223,13 @@ main { position: relative; z-index: var(--z-content); }
   max-width: var(--container);
 }
 .curtain__legal { display: grid; gap: var(--space-2); max-width: 40rem; }
-.legal { font-family: var(--font-ui); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--plum-300); margin: 0; }
-.credits { font-size: var(--size-caption); line-height: 1.5; color: var(--plum-300); margin: 0; max-width: none; }
-.credits a { color: var(--plum-200); }
+.legal { font-family: var(--font-ui); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--fg-muted); margin: 0; }
+.credits { font-size: var(--size-caption); line-height: 1.5; color: var(--fg-muted); margin: 0; max-width: none; }
+.credits a { color: var(--fg); }
 /* Chirec endorsement: right-aligned, smaller than the Collective's mark, with its own line */
-.endorsement { display: flex; align-items: center; gap: var(--space-4); color: var(--plum-200); text-decoration: none; }
-.endorsement:hover { color: var(--plum-100); text-decoration: none; }
-.endorsement__logo { background: var(--white); padding: 6px 10px; width: 132px; height: auto; }
+.endorsement { display: flex; align-items: center; gap: var(--space-4); color: var(--fg); text-decoration: none; }
+.endorsement:hover { color: var(--fg-strong); text-decoration: none; }
+.endorsement__logo { background: var(--white); padding: 6px 10px; width: 132px; height: auto; box-shadow: inset 0 0 0 1px var(--line); }
 .endorsement span { font-size: var(--size-caption); line-height: 1.4; max-width: 15em; }
 
 /* ---- Text grounds: a feathered panel of the page colour behind the hero copy (every width) and

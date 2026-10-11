@@ -4,13 +4,14 @@
 //   data-light  0 warm ... 1 cool spotlight
 //   data-key    key light level
 // Across the whole page the ring turns four full revolutions about the viewing axis (scrub 1.2),
-// the camera arcs 22 degrees round the statue and closes in slightly. The statue makes one full
-// turn of its own the other way, on a slower, eased track, so the two never move in step.
+// the camera arcs 22 degrees round the statue and closes in slightly. The statue makes two full
+// turns of its own the other way, on a slower, eased track, so the two never move in step.
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger.js';
 
 const DEG = Math.PI / 180;
 const RING_TURNS = 4;
+const STATUE_TURNS = 2;
 
 export function setupScenes({ stage }) {
   const state = stage.state;
@@ -72,7 +73,7 @@ export function setupScenes({ stage }) {
       });
       // the statue: its own turntable, opposite direction, eased and lagging further behind
       gsap.fromTo(state, { statueSpin: 0 }, {
-        statueSpin: -Math.PI * 2,
+        statueSpin: -Math.PI * 2 * STATUE_TURNS,
         ease: 'sine.inOut',
         immediateRender: false,
         scrollTrigger: { trigger: document.body, start: 'top top', end: 'bottom bottom', scrub: 2.4 },

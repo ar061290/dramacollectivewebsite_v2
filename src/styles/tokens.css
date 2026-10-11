@@ -70,10 +70,11 @@
    Dark (default) is the system's inverted, on-stage register; light ("house lights up") is its
    standard register: plum-100 page, white cards, plum-800 headings, slate-700 text, plum-500
    accents, the gold rule kept. .theme-ink pins a block to the dark register in either theme
-   (the loader and the curtain-call footer).
+   (the loader).
    ------------------------------------------------------------------------------------------ */
 :root, .theme-ink {
   --bg: var(--surface-ink-deep);
+  --curtain-bg: var(--surface-ink-deep); /* the curtain-call footer */
   --fg: var(--plum-200);              /* running text */
   --fg-strong: var(--plum-100);       /* headings, lead, names, figures' labels */
   --fg-muted: var(--plum-300);        /* captions, field labels, fine print */
@@ -96,6 +97,7 @@
 }
 :root[data-theme="light"] {
   --bg: var(--surface-page);
+  --curtain-bg: var(--surface-raised);
   --fg: var(--text-body);
   --fg-strong: var(--text-strong);
   --fg-muted: var(--plum-600);        /* slate-500 falls under 4.5:1 on plum-100 */

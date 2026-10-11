@@ -1,26 +1,25 @@
-// A small star as the cursor (and the constellation pen). Desktop, fine pointers only.
-import gsap from 'gsap';
+// The star cursor (and the constellation pen). Desktop, fine pointers only.
+// The star itself is a native cursor image set in CSS (layout.css), so the system draws it with no
+// lag and pixel-exact clicks. This module only switches it on and keeps the "Drag" hint beside it.
 
-export function setupCursor({ reduced }) {
+export function setupCursor() {
   if (!matchMedia('(hover: hover) and (pointer: fine)').matches) return () => {};
+  const root = document.documentElement;
   const el = document.querySelector('.cursor');
-  if (!el) return () => {};
-  document.documentElement.classList.add('has-cursor');
-  const xTo = gsap.quickTo(el, 'x', { duration: reduced ? 0.01 : 0.16, ease: 'power3' });
-  const yTo = gsap.quickTo(el, 'y', { duration: reduced ? 0.01 : 0.16, ease: 'power3' });
+  root.classList.add('has-cursor');
+  if (!el) return () => root.classList.remove('has-cursor');
+
   const onMove = (e) => {
     if (e.pointerType === 'touch') return;
     el.classList.add('is-visible');
-    xTo(e.clientX);
-    yTo(e.clientY);
-    el.classList.toggle('is-over-link', !!e.target.closest?.('a, button'));
+    el.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
   };
   const onLeave = () => el.classList.remove('is-visible');
   window.addEventListener('pointermove', onMove, { passive: true });
-  document.documentElement.addEventListener('pointerleave', onLeave);
+  root.addEventListener('pointerleave', onLeave);
   return () => {
     window.removeEventListener('pointermove', onMove);
-    document.documentElement.removeEventListener('pointerleave', onLeave);
-    document.documentElement.classList.remove('has-cursor');
+    root.removeEventListener('pointerleave', onLeave);
+    root.classList.remove('has-cursor');
   };
 }
